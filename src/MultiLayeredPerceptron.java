@@ -3,7 +3,12 @@ public class MultiLayeredPerceptron {
         System.out.println("Hello, World!");
     }
 
-    public MultiLayeredPerceptron(int[] inputs, int[] outputs, int[] layers, double learningRate) {
+    final int numOfInputs = 2;
+    final int numOfOutputs = 1;
+    final int hiddenUnitsPerLayer = 4;
+
+    public MultiLayeredPerceptron(int[] inputs, int[] layers, double learningRate) {
+        int[] outputs;
 
     }
 }
