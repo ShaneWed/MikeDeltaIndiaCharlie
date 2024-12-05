@@ -5,7 +5,7 @@ public class Sigmoid {
     }
 
     // Need to implement for gradient descent
-    public double sigmoidDerivative(double z) {
-        return 0.0;
+    public static double sigmoidDerivative(double z) {
+        return z * (1 - z);
     }
 }

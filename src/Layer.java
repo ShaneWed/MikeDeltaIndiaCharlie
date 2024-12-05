@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Layer {
-    ArrayList<Neuron> neurons = new ArrayList<Neuron>();
+    ArrayList<Neuron> neurons = new ArrayList<>();
     int layerNumber;
     double[] previousWeights;
 

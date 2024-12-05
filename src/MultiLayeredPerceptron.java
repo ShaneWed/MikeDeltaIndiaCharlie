@@ -18,7 +18,7 @@ public class MultiLayeredPerceptron {
 
     // This will have an input layer, one hidden layer, and an output layer
     // Try to implement variable hidden layers eventually
-    public MultiLayeredPerceptron(int[] inputs, double learningRate) {
+    public MultiLayeredPerceptron(double learningRate) {
         TrainingData data = new TrainingData();
 
         // Can probably move all of this outside of constructor, I assume code quality shouldn't matter as long as it works
@@ -39,7 +39,15 @@ public class MultiLayeredPerceptron {
         Layer output = new Layer(2, numOfOutputs, upperWeights); // output
         layers = new Layer[] {lowerLayer, upperLayer, output};
 
-        forward(data.xorOutputData);
+        forwardPasses(data.xorInputData);
+        backwards(data.xorInputData, data.xorOutputData, learningRate);
+        forwardPasses(data.xorInputData);
+        forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);
+
+        for(int i = 0; i < 100; i++) {
+            forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);
+        }
+
         randomise();
     }
 
@@ -61,8 +69,38 @@ public class MultiLayeredPerceptron {
         }
     }
 
+    public double backwards(double[][] inputs, double[] t, double learningRate) {
+        // Backpropagation!
+        double newDelta = 0;
+        double error = 0;
+        for(int i = 0; i < numOfInputs; i++) {
+            double[] input = inputs[i];
+            for (double v : t) { // Loop for every example, IntelliJ changed loop
+                for (int j = 0; j < numOfOutputs; j++) {
+                    newDelta = (v - outputs[j]) * Sigmoid.sigmoidDerivative(outputs[j]);
+
+                    for(int k = 0; k < upperWeights.length; k++) {
+                        upperDeltas[k] = Sigmoid.sigmoidDerivative(upperActivations[k]) * upperWeights[k] * newDelta;
+                    }
+
+                    for(int k = 0; k < upperWeights.length; k++) {
+                        upperWeights[k] += learningRate * newDelta * upperActivations[k];
+                    }
+
+                    for(int k = 0; k < lowerWeights.length; k++) {
+                        lowerWeights[k] += learningRate * upperDeltas[k] * input[j];
+                    }
+                }
+            }
+            error += Math.pow(t[i] - outputs[0], 2);
+        }
+
+        return error; // TODO change this to actually return the error of the example
+    }
+
     public void forward(double[] I) {
         // Forward pass which will produce output stored into double[] outputs
+        // I think it works!
         // First set the input layer neurons to the inputs
         lowerActivations = I; // This seems wrong
 
@@ -85,8 +123,22 @@ public class MultiLayeredPerceptron {
         }
 
         // Results?
-        for(int i = 0; i < numOfInputs; i++) {
+        for(int i = 0; i < numOfOutputs; i++) { // Probably one of the dumbest array mistakes I've made
             System.out.println("Output " + i + ": " + outputs[i]);
         }
+    }
+
+    public void forwardPasses(double[][] I) {
+        System.out.println("Performing forward passes...");
+        for(double[] j : I) { // Should probably make a method for this
+            forward(j);
+        }
+    }
+
+    public void forwardPassesWithBackwards(double[][] I, double[] O, double learningRate) {
+        System.out.println("\nPerforming forward passes and then backpropagation");
+        forwardPasses(I);
+        System.out.println("Backpropagation error: " + backwards(I, O, learningRate));
+        forwardPasses(I);
     }
 }
