@@ -11,4 +11,8 @@ public class Neuron {
         delta = 0;
 
     }
+
+    public void setWeights(double[] weights) {
+        this.weights = weights;
+    }
 }
