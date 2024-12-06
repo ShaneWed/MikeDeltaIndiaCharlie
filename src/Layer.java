@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Layer {
-    ArrayList<Neuron> neurons = new ArrayList<>();
-    int layerNumber;
+    private ArrayList<Neuron> neurons = new ArrayList<>();
+    private int layerNumber;
     double[] previousWeights;
 
     public Layer(int layerNumber, int noOfNeurons, double[] previousWeights) {
@@ -12,16 +12,22 @@ public class Layer {
 
         for(int i = 0; i < noOfNeurons; i++) { // Generate neurons, crazy stuff
             Neuron neuron = new Neuron(i);
-            neuron.setWeights(previousWeights);
+            neuron.setWeights(previousWeights); // null for layer 0!
             neurons.add(neuron);
 
             // For debugging
-            System.out.println("Neuron " + i + " added to layer " + layerNumber + " with weights " + Arrays.toString(previousWeights));
+            //System.out.println("Neuron " + i + " added to layer " + layerNumber + " with weights " + Arrays.toString(previousWeights));
         }
     }
 
     public ArrayList<Neuron> getNeurons() {
         return neurons;
+    }
+    public double[] getPreviousWeights() {
+        return previousWeights;
+    }
+    public int layerNumber() {
+        return layerNumber;
     }
 
     public void updateNeurons(double[] previousWeights) {

@@ -2,8 +2,8 @@ public class MultiLayeredPerceptron {
     final int numOfInputs = 2;
     final int numOfOutputs = 1;
     final int hiddenUnitsPerLayer = 4;
+    double learningRate;
 
-    double[] dummyWeights = new double[numOfInputs];
     double[] lowerWeights = new double[numOfInputs];
     double[] lowerDeltas = new double[numOfInputs];
     double[] lowerActivations = new double[numOfInputs];
@@ -17,40 +17,41 @@ public class MultiLayeredPerceptron {
     // This will have an input layer, one hidden layer, and an output layer
     // Try to implement variable hidden layers eventually
     public MultiLayeredPerceptron(double learningRate) {
+        this.learningRate = learningRate;
         TrainingData data = new TrainingData();
 
-        Layer lowerLayer = new Layer(0, numOfInputs, dummyWeights); // input
+        // can probably just leave previousWeights as nothing since randomise changes it
+        Layer lowerLayer = new Layer(0, numOfInputs, null); // input
         Layer upperLayer = new Layer(1, hiddenUnitsPerLayer, lowerWeights); // hidden
-        Layer output = new Layer(2, numOfOutputs, upperWeights); // output
-        layers = new Layer[] {lowerLayer, upperLayer, output};
+        Layer outputLayer = new Layer(2, numOfOutputs, upperWeights); // output
+        layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
 
-        forwardPasses(data.xorInputData);
+        /*forwardPasses(data.xorInputData);
         backwards(data.xorInputData, data.xorOutputData, learningRate);
         forwardPasses(data.xorInputData);
-        forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);
+        forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);*/
 
+        randomise();
+        System.out.println(this);
         for(int i = 0; i < 100; i++) {
             forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);
         }
 
-        randomise();
+        System.out.println(this);
     }
 
     public void randomise() {
-        // Will have to change this if number of layers changes
-        for(int i = 0; i < lowerWeights.length; i++) {
-            dummyWeights[i] = 0;
-            lowerWeights[i] = Math.random();
-            lowerDeltas[i] = 0;
-            lowerActivations[i] = 0; // IDK if this should be here or if it's even correct
-        }
-        for (int i = 0; i < upperWeights.length; i++) {
-            upperWeights[i] = Math.random();
-            upperDeltas[i] = 0;
-            upperActivations[i] = 0;
-        }
-        for(int i = 0; i < numOfOutputs; i++) {
-            outputs[i] = 0;
+        // Maybe make it so input doesn't get set weights? Or we can just ignore them during the other functions
+        for(Layer l : layers) {
+            if(l.layerNumber() != 0) {
+                for(int i = 0; i < l.previousWeights.length; i++) {
+                    l.previousWeights[i] = Math.random();
+                }
+                for(Neuron n : l.getNeurons()) {
+                    n.setRandomWeights();
+                    n.setBias(Math.random());
+                }
+            }
         }
     }
 
@@ -85,36 +86,31 @@ public class MultiLayeredPerceptron {
 
     public void forward(double[] I) {
         // Forward pass which will produce output stored into double[] outputs
-        // I think it works!
-        // First set the input layer neurons to the inputs
-        lowerActivations = I; // This seems wrong
+        // I think it works! Yeah, it probably didn't
 
-        // Then actually do some calculations for the activations of the next layer
-        // since these will be based off the input layer
-        for(int i = 0; i < upperWeights.length; i++) {
-            for(int j = 0; j < lowerWeights.length; j++) {
-                upperActivations[i] += lowerActivations[j] * lowerWeights[j];
-            }
-            // TODO How tf am I going to get the bias; We'll add that later
-            upperActivations[i] = Sigmoid.calculateY(upperActivations[i]);
+        // I believe I have cooked
+        for(int i = 0; i < I.length; i++) {
+            layers[0].getNeurons().get(i).setValue(I[i]);
         }
 
-        // Output layer
-        for(int i = 0; i < numOfOutputs; i++) {
-            for(int j = 0; j < upperWeights.length; j++) {
-                outputs[i] += upperActivations[j] * upperWeights[j];
+        double weightSum = 0;
+        for(Layer l : layers) {
+            if(l.layerNumber() != 0) {
+                for(Neuron n : l.getNeurons()) {
+                    for(Neuron n2 : layers[l.layerNumber() - 1].getNeurons()) {
+                        for(double d : n.getWeights()) {
+                            weightSum += d * n2.getValue() + n2.getBias();
+                        }
+                    }
+                    n.setValue(Sigmoid.calculateY(weightSum));
+                    weightSum = 0;
+                }
             }
-            outputs[i] = Sigmoid.calculateY(outputs[i]);
-        }
-
-        // Results?
-        for(int i = 0; i < numOfOutputs; i++) { // Probably one of the dumbest array mistakes I've made
-            System.out.println("Output " + i + ": " + outputs[i]);
         }
     }
 
     public void forwardPasses(double[][] I) {
-        System.out.println("Performing forward passes...");
+        //System.out.println("Performing forward passes...");
         for(double[] j : I) { // Should probably make a method for this
             forward(j);
         }
@@ -125,5 +121,20 @@ public class MultiLayeredPerceptron {
         forwardPasses(I);
         System.out.println("Backpropagation error: " + backwards(I, O, learningRate));
         forwardPasses(I);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        int count = 0;
+        for(Layer l : layers) {
+            sb.append("Layer ").append(l.layerNumber()).append("\n");
+            for(Neuron n : l.getNeurons()) {
+                sb.append("Neuron ").append(count).append(" with weight ").append(n.getValue()).append(", bias ").append(n.getBias()).append(", and value ").append(n.getValue()).append("\n");
+                count++;
+            }
+            count = 0;
+        }
+        return sb.toString();
     }
 }
