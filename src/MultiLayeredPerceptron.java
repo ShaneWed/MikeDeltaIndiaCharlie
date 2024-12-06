@@ -3,16 +3,14 @@ public class MultiLayeredPerceptron {
     final int numOfOutputs = 1;
     final int hiddenUnitsPerLayer = 4;
 
-    double[] dummyWeights;
-    double[] lowerWeights; // Might have to be 2D, one for layer # and other for weight value
-    double[] upperWeights;
-    double[] outputs;
-
-    double[] lowerDeltas;
-    double[] upperDeltas;
-
-    double[] lowerActivations;
-    double[] upperActivations;
+    double[] dummyWeights = new double[numOfInputs];
+    double[] lowerWeights = new double[numOfInputs];
+    double[] lowerDeltas = new double[numOfInputs];
+    double[] lowerActivations = new double[numOfInputs];
+    double[] upperWeights = new double[hiddenUnitsPerLayer];
+    double[] upperDeltas = new double[hiddenUnitsPerLayer];
+    double[] upperActivations = new double[hiddenUnitsPerLayer];
+    double[] outputs = new double[numOfOutputs];
 
     Layer[] layers;
 
@@ -20,19 +18,6 @@ public class MultiLayeredPerceptron {
     // Try to implement variable hidden layers eventually
     public MultiLayeredPerceptron(double learningRate) {
         TrainingData data = new TrainingData();
-
-        // Can probably move all of this outside of constructor, I assume code quality shouldn't matter as long as it works
-        // TODO Yeah this is absolutely silly having all this in the constructor
-        dummyWeights = new double[numOfInputs];
-        lowerWeights = new double[numOfInputs];
-        lowerDeltas = new double[numOfInputs];
-        lowerActivations = new double[numOfInputs];
-        upperWeights = new double[hiddenUnitsPerLayer];
-        upperDeltas = new double[hiddenUnitsPerLayer];
-        upperActivations = new double[hiddenUnitsPerLayer];
-        outputs = new double[numOfOutputs];
-
-        randomise(); // For funnies
 
         Layer lowerLayer = new Layer(0, numOfInputs, dummyWeights); // input
         Layer upperLayer = new Layer(1, hiddenUnitsPerLayer, lowerWeights); // hidden
