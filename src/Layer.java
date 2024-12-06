@@ -1,9 +1,8 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Layer {
-    private ArrayList<Neuron> neurons = new ArrayList<>();
-    private int layerNumber;
+    private final ArrayList<Neuron> neurons = new ArrayList<>();
+    private final int layerNumber;
     double[] previousWeights;
 
     public Layer(int layerNumber, int noOfNeurons, double[] previousWeights) {
@@ -32,6 +31,7 @@ public class Layer {
 
     public void updateNeurons(double[] previousWeights) {
         // This should be called whenever the weights change
+        // Or it's completely unnecessary we'll see
         for(Neuron neuron : neurons) {
             neuron.setWeights(previousWeights);
         }

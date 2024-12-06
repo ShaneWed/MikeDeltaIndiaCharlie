@@ -57,31 +57,32 @@ public class MultiLayeredPerceptron {
 
     public double backwards(double[][] inputs, double[] t, double learningRate) {
         // Backpropagation!
-        double newDelta = 0;
         double error = 0;
-        for(int i = 0; i < numOfInputs; i++) {
-            double[] input = inputs[i];
-            for (double v : t) { // Loop for every example, IntelliJ changed loop
-                for (int j = 0; j < numOfOutputs; j++) {
-                    newDelta = (v - outputs[j]) * Sigmoid.sigmoidDerivative(outputs[j]);
-
-                    for(int k = 0; k < upperWeights.length; k++) {
-                        upperDeltas[k] = Sigmoid.sigmoidDerivative(upperActivations[k]) * upperWeights[k] * newDelta;
+        double newDelta = 0;
+        for(int i = layers.length - 1; i >= 0; i--) { // Will be lovely to debug
+            if(i == layers.length - 1) { // Output layer
+                for(int j = 0; j < layers[i].getNeurons().size(); j++) { // Compare these to expected outputs
+                    error = t[j] - layers[i].getNeurons().get(j).getValue();
+                    newDelta = error * Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
+                    for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) { // Something's probably not right here
+                        newDelta = newDelta * layers[i - 1].getNeurons().get(j).getValue() * learningRate;
+                        layers[i].getNeurons().get(j).updateWeights(k, newDelta);
                     }
-
-                    for(int k = 0; k < upperWeights.length; k++) {
-                        upperWeights[k] += learningRate * newDelta * upperActivations[k];
+                }
+            } else { // Not output layer
+                for(int j = 0; j < layers[i].getNeurons().size(); j++) {
+                    for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
+                        newDelta += layers[i].getNeurons().get(j).getWeights()[k] * layers[i - 1].getNeurons().get(j).getValue();
                     }
+                    newDelta = newDelta * Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
 
-                    for(int k = 0; k < lowerWeights.length; k++) {
-                        lowerWeights[k] += learningRate * upperDeltas[k] * input[j];
+                    for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
+                        layers[i].getNeurons().get(j).updateWeights(k, newDelta * layers[i - 1].getNeurons().get(j).getValue() * learningRate);
                     }
                 }
             }
-            error += Math.pow(t[i] - outputs[0], 2);
         }
-
-        return error; // TODO change this to actually return the error of the example
+        return error;
     }
 
     public void forward(double[] I) {
