@@ -39,7 +39,7 @@ public class Neuron {
         return weights;
     }
     public void updateWeights(int weightIndex, double delta) {
-        weights[weightIndex] *= delta;
+        weights[weightIndex] += delta;
         System.out.println(Arrays.toString(weights) + " " + delta);
     }
 }

@@ -57,6 +57,7 @@ public class MultiLayeredPerceptron {
 
     public double backwards(double[][] inputs, double[] t, double learningRate) {
         // Backpropagation!
+        // TODO fix calculations so weights are calculated properly
         double error = 0;
         double newDelta = 0;
         for(int i = layers.length - 1; i >= 0; i--) { // Will be lovely to debug
