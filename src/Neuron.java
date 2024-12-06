@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Neuron {
     double value;
     double bias;
@@ -38,5 +40,6 @@ public class Neuron {
     }
     public void updateWeights(int weightIndex, double delta) {
         weights[weightIndex] *= delta;
+        System.out.println(Arrays.toString(weights) + " " + delta);
     }
 }

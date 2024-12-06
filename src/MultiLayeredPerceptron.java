@@ -68,17 +68,23 @@ public class MultiLayeredPerceptron {
                         newDelta = newDelta * layers[i - 1].getNeurons().get(j).getValue() * learningRate;
                         layers[i].getNeurons().get(j).updateWeights(k, newDelta);
                     }
+                    newDelta = 0;
                 }
-            } else { // Not output layer
+            } else if(i > 0) { // Not output layer
                 for(int j = 0; j < layers[i].getNeurons().size(); j++) {
                     for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
-                        newDelta += layers[i].getNeurons().get(j).getWeights()[k] * layers[i - 1].getNeurons().get(j).getValue();
+                        for(int m = 0; m < layers[i - 1].getNeurons().size(); m++) {
+                            newDelta += layers[i].getNeurons().get(j).getWeights()[k] * layers[i - 1].getNeurons().get(m).getValue();
+                        }
                     }
                     newDelta = newDelta * Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
 
                     for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
-                        layers[i].getNeurons().get(j).updateWeights(k, newDelta * layers[i - 1].getNeurons().get(j).getValue() * learningRate);
+                        for(int m = 0; m < layers[i - 1].getNeurons().size(); m++) {
+                            layers[i].getNeurons().get(j).updateWeights(k, newDelta * layers[i - 1].getNeurons().get(m).getValue() * learningRate);
+                        }
                     }
+                    newDelta = 0;
                 }
             }
         }
