@@ -5,12 +5,7 @@ public class MultiLayeredPerceptron {
     double learningRate;
 
     double[] lowerWeights = new double[numOfInputs];
-    double[] lowerDeltas = new double[numOfInputs];
-    double[] lowerActivations = new double[numOfInputs];
     double[] upperWeights = new double[hiddenUnitsPerLayer];
-    double[] upperDeltas = new double[hiddenUnitsPerLayer];
-    double[] upperActivations = new double[hiddenUnitsPerLayer];
-    double[] outputs = new double[numOfOutputs];
 
     Layer[] layers;
 
@@ -21,9 +16,9 @@ public class MultiLayeredPerceptron {
         TrainingData data = new TrainingData();
 
         // can probably just leave previousWeights as nothing since randomise changes it
-        Layer lowerLayer = new Layer(0, numOfInputs, null); // input
-        Layer upperLayer = new Layer(1, hiddenUnitsPerLayer, lowerWeights); // hidden
-        Layer outputLayer = new Layer(2, numOfOutputs, upperWeights); // output
+        Layer lowerLayer = new Layer(0, numOfInputs, 0); // input
+        Layer upperLayer = new Layer(1, hiddenUnitsPerLayer, numOfInputs); // hidden
+        Layer outputLayer = new Layer(2, numOfOutputs, hiddenUnitsPerLayer); // output
         layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
 
         /*forwardPasses(data.xorInputData);
@@ -33,7 +28,7 @@ public class MultiLayeredPerceptron {
 
         randomise();
         System.out.println(this);
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < 10000; i++) {
             forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);
         }
 
@@ -65,27 +60,24 @@ public class MultiLayeredPerceptron {
                 for(int j = 0; j < layers[i].getNeurons().size(); j++) { // Compare these to expected outputs
                     error = t[j] - layers[i].getNeurons().get(j).getValue();
                     newDelta = error * Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
-                    for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) { // Something's probably not right here
-                        newDelta = newDelta * layers[i - 1].getNeurons().get(j).getValue() * learningRate;
-                        layers[i].getNeurons().get(j).updateWeights(k, newDelta);
+
+                    for (int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
+                        double weightDelta = newDelta * layers[i - 1].getNeurons().get(k).getValue() * learningRate;
+                        layers[i].getNeurons().get(j).updateWeights(k, weightDelta);
                     }
-                    newDelta = 0;
                 }
             } else if(i > 0) { // Not output layer
                 for(int j = 0; j < layers[i].getNeurons().size(); j++) {
-                    for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
-                        for(int m = 0; m < layers[i - 1].getNeurons().size(); m++) {
-                            newDelta += layers[i].getNeurons().get(j).getWeights()[k] * layers[i - 1].getNeurons().get(m).getValue();
-                        }
+                    newDelta = 0; // Reset delta for the current neuron
+                    for (int k = 0; k < layers[i + 1].getNeurons().size(); k++) {
+                        newDelta += layers[i + 1].getNeurons().get(k).getWeights()[j] * layers[i + 1].getNeurons().get(k).getDelta();
                     }
-                    newDelta = newDelta * Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
+                    newDelta *= Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
 
-                    for(int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
-                        for(int m = 0; m < layers[i - 1].getNeurons().size(); m++) {
-                            layers[i].getNeurons().get(j).updateWeights(k, newDelta * layers[i - 1].getNeurons().get(m).getValue() * learningRate);
-                        }
+                    for (int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
+                        double weightDelta = newDelta * layers[i - 1].getNeurons().get(k).getValue() * learningRate;
+                        layers[i].getNeurons().get(j).updateWeights(k, weightDelta);
                     }
-                    newDelta = 0;
                 }
             }
         }
@@ -105,10 +97,8 @@ public class MultiLayeredPerceptron {
         for(Layer l : layers) {
             if(l.layerNumber() != 0) {
                 for(Neuron n : l.getNeurons()) {
-                    for(Neuron n2 : layers[l.layerNumber() - 1].getNeurons()) {
-                        for(double d : n.getWeights()) {
-                            weightSum += d * n2.getValue() + n2.getBias();
-                        }
+                    for(int i = 0; i < layers[l.layerNumber() - 1].getNeurons().size(); i++) {
+                        weightSum += layers[l.layerNumber() - 1].getNeurons().get(i).getValue() * layers[l.layerNumber() - 1].getNeurons().get(i).getWeights()[i] + n.getBias();
                     }
                     n.setValue(Sigmoid.calculateY(weightSum));
                     weightSum = 0;

@@ -5,8 +5,8 @@ public class Layer {
     private final int layerNumber;
     double[] previousWeights;
 
-    public Layer(int layerNumber, int noOfNeurons, double[] previousWeights) {
-        this.previousWeights = previousWeights;
+    public Layer(int layerNumber, int noOfNeurons, int noOfPreviousWeights) {
+        this.previousWeights = new double[noOfPreviousWeights];
         this.layerNumber = layerNumber;
 
         for(int i = 0; i < noOfNeurons; i++) { // Generate neurons, crazy stuff

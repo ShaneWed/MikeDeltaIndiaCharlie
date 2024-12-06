@@ -2,7 +2,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Hello World!");
 
-        double learningRate = 0.5;
+        double learningRate = 0.02;
 
         MultiLayeredPerceptron MikeDeltaIndiaCharlie = new MultiLayeredPerceptron(learningRate);
 
