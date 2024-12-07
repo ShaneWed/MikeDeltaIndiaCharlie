@@ -21,20 +21,15 @@ public class MultiLayeredPerceptron {
         Layer outputLayer = new Layer(2, numOfOutputs, hiddenUnitsPerLayer); // output
         layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
 
-        /*forwardPasses(data.xorInputData);
-        backwards(data.xorInputData, data.xorOutputData, learningRate);
-        forwardPasses(data.xorInputData);
-        forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);*/
-
         randomise();
-        System.out.println(this);
-        /*for(int i = 0; i < 10000; i++) {
-            forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);
-        }*/
-        train(data, 1000000);
+        //System.out.println(this);
 
-        System.out.println(this);
-        testXOR();
+        train(data, 10000000);
+
+        //System.out.println(this);
+        testXOR(data);
+        System.out.println("Does the network correctly predict the XOR function?");
+        correctlyPredicts(data);
     }
 
     public void randomise() {
@@ -118,30 +113,11 @@ public class MultiLayeredPerceptron {
         }
     }
 
-    public void forwardPasses(double[][] I) {
-        //System.out.println("Performing forward passes...");
-        for(double[] j : I) { // Should probably make a method for this
-            forward(j);
-        }
-    }
-
-    public void forwardPassesWithBackwards(double[][] I, double[] O, double learningRate) {
-        forwardPasses(I);
-        System.out.println("Backpropagation error: " + backwards(I, O, learningRate));
-    }
-
-    public void testXOR() {
-        double[][] testInputs = {
-            {0, 0},
-            {0, 1},
-            {1, 0},
-            {1, 1}
-        };
-
+    public void testXOR(TrainingData data) {
         System.out.println("Testing XOR outputs:");
-        for (double[] input : testInputs) {
+        for (double[] input : data.xorInputData) {
             forward(input);
-            double output = layers[layers.length - 1].getNeurons().get(0).getValue();
+            double output = layers[layers.length - 1].getNeurons().getFirst().getValue();
             System.out.printf("Input: %s, Output: %.4f%n", Arrays.toString(input), output);
         }
     }
@@ -167,6 +143,27 @@ public class MultiLayeredPerceptron {
             if(epoch % 1000 == 0) {
                 System.out.printf("Epoch %d, Error: %.4f%n", epoch, totalError);
             }
+        }
+    }
+
+    public void correctlyPredicts(TrainingData data) {
+        int[] actualOutput = new int[data.xorOutputData.length];
+        for(int i = 0; i < data.xorInputData.length; i++) {
+            forward(data.xorInputData[i]);
+            System.out.println("Expected " + Arrays.toString(data.xorInputData[i]) + " = " + data.xorOutputData[i]);
+            System.out.println("Actual " + Arrays.toString(data.xorInputData[i]) + " = " + layers[layers.length - 1].getNeurons().getFirst().getRoundedValue());
+            actualOutput[i] = layers[layers.length - 1].getNeurons().getFirst().getRoundedValue();
+        }
+        boolean outputMatches = true;
+        for(int i = 0; i < actualOutput.length; i++) {
+            if(actualOutput[i] != (int) data.xorOutputData[i]) {
+                outputMatches = false;
+            }
+        }
+        if(outputMatches) {
+            System.out.println("Network correctly predicts XOR!");
+        } else {
+            System.out.println("L network");
         }
     }
 
