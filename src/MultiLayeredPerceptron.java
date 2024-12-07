@@ -22,14 +22,13 @@ public class MultiLayeredPerceptron {
         layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
 
         randomise();
-        //System.out.println(this);
 
-        train(data, 10000000);
+        train(data, 100000);
 
-        //System.out.println(this);
         testXOR(data);
         System.out.println("Does the network correctly predict the XOR function?");
         correctlyPredicts(data);
+        data.generateTrainingVectors(4, 500);
     }
 
     public void randomise() {
