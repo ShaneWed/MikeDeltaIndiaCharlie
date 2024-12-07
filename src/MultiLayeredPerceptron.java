@@ -2,9 +2,9 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class MultiLayeredPerceptron {
-    final int numOfInputs = 2;
+    final int numOfInputs = 4;
     final int numOfOutputs = 1;
-    final int hiddenUnitsPerLayer = 4;
+    final int hiddenUnitsPerLayer = 5;
     double learningRate;
 
     Layer[] layers;
@@ -13,7 +13,7 @@ public class MultiLayeredPerceptron {
     // Try to implement variable hidden layers eventually
     public MultiLayeredPerceptron(double learningRate) {
         this.learningRate = learningRate;
-        TrainingData data = new TrainingData();
+        TrainingData data = new TrainingData(4, 500);
 
         // can probably just leave previousWeights as nothing since randomise changes it
         Layer lowerLayer = new Layer(0, numOfInputs, numOfInputs); // input
@@ -23,12 +23,16 @@ public class MultiLayeredPerceptron {
 
         randomise();
 
-        train(data, 100000);
+        // XOR function
+        /*
+        train(data.xorInputData, data.xorOutputData, 100000);
+        testOutputs(data.xorInputData);
 
-        testXOR(data);
         System.out.println("Does the network correctly predict the XOR function?");
-        correctlyPredicts(data);
-        data.generateTrainingVectors(4, 500);
+        correctlyPredicts(data);*/
+
+        train(data.trainingVectors, data.trainingVectorOutputs, 100000);
+        testOutputs(data.trainingVectors, data.trainingVectorOutputs);
     }
 
     public void randomise() {
@@ -112,28 +116,29 @@ public class MultiLayeredPerceptron {
         }
     }
 
-    public void testXOR(TrainingData data) {
-        System.out.println("Testing XOR outputs:");
-        for (double[] input : data.xorInputData) {
+    public void testOutputs(double[][] inputs, double[] outputs) { // Maybe move this to TrainingData to clean up the file
+        System.out.println("Testing outputs:");
+        int count = 0;
+        for (double[] input : inputs) {
             forward(input);
             double output = layers[layers.length - 1].getNeurons().getFirst().getValue();
-            System.out.printf("Input: %s, Output: %.4f%n", Arrays.toString(input), output);
+            System.out.println("Input: " + Arrays.toString(input) + ", Actual Output: " + output + ", Expected Output: " + outputs[count++]);
         }
     }
 
-    public void train(TrainingData data, int epochs) {
+    public void train(double[][] input, double[] output, int epochs) {
         for(int epoch = 0; epoch < epochs; epoch++) {
             double totalError = 0;
 
             // Process each training example individually
-            for(int i = 0; i < data.xorInputData.length; i++) {
+            for(int i = 0; i < input.length; i++) {
                 // Forward pass
-                forward(data.xorInputData[i]);
+                forward(input[i]);
 
                 // Backward pass
                 double error = backwards(
-                        new double[][]{data.xorInputData[i]},
-                        new double[]{data.xorOutputData[i]},
+                        new double[][]{input[i]},
+                        new double[]{output[i]},
                         learningRate
                 );
                 totalError += Math.abs(error);

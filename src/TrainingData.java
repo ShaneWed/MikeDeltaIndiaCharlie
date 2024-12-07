@@ -1,4 +1,3 @@
-import java.util.Arrays;
 import java.util.Random;
 
 public class TrainingData {
@@ -14,18 +13,21 @@ public class TrainingData {
     };
     public double[] xorOutputData = new double[]{0, 1, 1, 0};
 
-    public double[][] generateTrainingVectors(int noOfInputs, int noOfVectors) {
-        trainingVectors = new double[noOfInputs][noOfVectors];
+    public void generateTrainingVectors(int noOfInputs, int noOfVectors) {
+        trainingVectors = new double[noOfVectors][noOfInputs];
         trainingVectorOutputs = new double[noOfVectors];
         for(int i = 0; i < noOfVectors; i++) {
             for(int j = 0; j < noOfInputs; j++) {
-                trainingVectors[j][i] = rand.nextDouble(-1, 1);
+                trainingVectors[i][j] = rand.nextDouble(-1, 1);
             }
         }
         for(int i = 0; i < noOfVectors; i++) {
-            double combination = trainingVectors[0][i] - trainingVectors[1][i] + trainingVectors[2][i] - trainingVectors[3][i];
+            double combination = trainingVectors[i][0] - trainingVectors[i][1] + trainingVectors[i][2] - trainingVectors[i][3];
             trainingVectorOutputs[i] = Math.sin(combination);
         }
-        return trainingVectors;
+    }
+
+    public TrainingData(int noOfInputs, int noOfVectors) {
+        generateTrainingVectors(noOfInputs, noOfVectors);
     }
 }
