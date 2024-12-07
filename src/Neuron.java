@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Random;
 
 public class Neuron {
     double value;
@@ -18,11 +19,12 @@ public class Neuron {
     public void setWeights(double[] weights) {
         this.weights = weights;
     }
-    public void setRandomWeights() {
+    public void setRandomWeights(Random rand) {
         for(int i = 0; i < weights.length; i++) {
-            weights[i] = Math.random();
+            weights[i] = rand.nextDouble(1);
         }
     }
+
     public void setValue(double value) {
         this.value = value;
     }
@@ -41,7 +43,7 @@ public class Neuron {
     public void updateWeights(int weightIndex, double delta) {
         weights[weightIndex] += delta;
         setDelta(delta);
-        System.out.println(Arrays.toString(weights) + " " + delta);
+        //System.out.println(Arrays.toString(weights) + " " + delta);
     }
     public void setDelta(double delta) {
         this.delta = delta;
@@ -49,4 +51,9 @@ public class Neuron {
     public double getDelta() {
         return delta;
     }
+
+    @Override
+    public String toString() {
+        return "Value: " + getValue() + ", Bias: " + getBias() + ", Weights: " + Arrays.toString(weights);
+     }
 }

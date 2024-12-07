@@ -1,11 +1,11 @@
+import java.util.Arrays;
+import java.util.Random;
+
 public class MultiLayeredPerceptron {
     final int numOfInputs = 2;
     final int numOfOutputs = 1;
     final int hiddenUnitsPerLayer = 4;
     double learningRate;
-
-    double[] lowerWeights = new double[numOfInputs];
-    double[] upperWeights = new double[hiddenUnitsPerLayer];
 
     Layer[] layers;
 
@@ -16,7 +16,7 @@ public class MultiLayeredPerceptron {
         TrainingData data = new TrainingData();
 
         // can probably just leave previousWeights as nothing since randomise changes it
-        Layer lowerLayer = new Layer(0, numOfInputs, 0); // input
+        Layer lowerLayer = new Layer(0, numOfInputs, numOfInputs); // input
         Layer upperLayer = new Layer(1, hiddenUnitsPerLayer, numOfInputs); // hidden
         Layer outputLayer = new Layer(2, numOfOutputs, hiddenUnitsPerLayer); // output
         layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
@@ -28,55 +28,63 @@ public class MultiLayeredPerceptron {
 
         randomise();
         System.out.println(this);
-        for(int i = 0; i < 10000; i++) {
+        for(int i = 0; i < 1000; i++) {
             forwardPassesWithBackwards(data.xorInputData, data.xorOutputData, learningRate);
         }
 
         System.out.println(this);
+        testXOR();
     }
 
     public void randomise() {
         // Maybe make it so input doesn't get set weights? Or we can just ignore them during the other functions
+        Random rand = new Random();
         for(Layer l : layers) {
             if(l.layerNumber() != 0) {
-                for(int i = 0; i < l.previousWeights.length; i++) {
-                    l.previousWeights[i] = Math.random();
-                }
                 for(Neuron n : l.getNeurons()) {
-                    n.setRandomWeights();
-                    n.setBias(Math.random());
+                    n.setRandomWeights(rand);
+                    n.setBias(rand.nextDouble(1));
                 }
             }
         }
     }
 
     public double backwards(double[][] inputs, double[] t, double learningRate) {
-        // Backpropagation!
-        // TODO fix calculations so weights are calculated properly
         double error = 0;
-        double newDelta = 0;
-        for(int i = layers.length - 1; i >= 0; i--) { // Will be lovely to debug
-            if(i == layers.length - 1) { // Output layer
-                for(int j = 0; j < layers[i].getNeurons().size(); j++) { // Compare these to expected outputs
-                    error = t[j] - layers[i].getNeurons().get(j).getValue();
-                    newDelta = error * Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
 
-                    for (int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
-                        double weightDelta = newDelta * layers[i - 1].getNeurons().get(k).getValue() * learningRate;
-                        layers[i].getNeurons().get(j).updateWeights(k, weightDelta);
+        for(int i = layers.length - 1; i > 0; i--) {
+            Layer currentLayer = layers[i];
+            
+            if(i == layers.length - 1) { // Output layer
+                for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
+                    Neuron neuron = currentLayer.getNeurons().get(j);
+                    error = t[j] - neuron.getValue();
+                    double delta = error * Sigmoid.sigmoidDerivative(neuron.getValue());
+                    neuron.setDelta(delta);
+                    
+                    // Update weights
+                    for(int k = 0; k < layers[i-1].getNeurons().size(); k++) {
+                        double weightDelta = learningRate * delta * layers[i-1].getNeurons().get(k).getValue();
+                        neuron.updateWeights(k, weightDelta);
                     }
                 }
-            } else if(i > 0) { // Not output layer
-                for(int j = 0; j < layers[i].getNeurons().size(); j++) {
-                    newDelta = 0; // Reset delta for the current neuron
-                    for (int k = 0; k < layers[i + 1].getNeurons().size(); k++) {
-                        newDelta += layers[i + 1].getNeurons().get(k).getWeights()[j] * layers[i + 1].getNeurons().get(k).getDelta();
+            } else { // Hidden layers
+                for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
+                    Neuron neuron = currentLayer.getNeurons().get(j);
+                    double delta = 0;
+                    
+                    // Calculate delta based on next layer
+                    for(int k = 0; k < layers[i+1].getNeurons().size(); k++) {
+                        Neuron nextNeuron = layers[i+1].getNeurons().get(k);
+                        delta += nextNeuron.getDelta() * nextNeuron.getWeights()[j];
                     }
-                    newDelta *= Sigmoid.sigmoidDerivative(layers[i].getNeurons().get(j).getValue());
-
-                    for (int k = 0; k < layers[i].getNeurons().get(j).getWeights().length; k++) {
-                        double weightDelta = newDelta * layers[i - 1].getNeurons().get(k).getValue() * learningRate;
-                        layers[i].getNeurons().get(j).updateWeights(k, weightDelta);
+                    delta *= Sigmoid.sigmoidDerivative(neuron.getValue());
+                    neuron.setDelta(delta);
+                    
+                    // Update weights
+                    for(int k = 0; k < layers[i-1].getNeurons().size(); k++) {
+                        double weightDelta = learningRate * delta * layers[i-1].getNeurons().get(k).getValue();
+                        neuron.updateWeights(k, weightDelta);
                     }
                 }
             }
@@ -85,24 +93,22 @@ public class MultiLayeredPerceptron {
     }
 
     public void forward(double[] I) {
-        // Forward pass which will produce output stored into double[] outputs
-        // I think it works! Yeah, it probably didn't
-
-        // I believe I have cooked
+        // Set input layer values
         for(int i = 0; i < I.length; i++) {
             layers[0].getNeurons().get(i).setValue(I[i]);
         }
 
-        double weightSum = 0;
-        for(Layer l : layers) {
-            if(l.layerNumber() != 0) {
-                for(Neuron n : l.getNeurons()) {
-                    for(int i = 0; i < layers[l.layerNumber() - 1].getNeurons().size(); i++) {
-                        weightSum += layers[l.layerNumber() - 1].getNeurons().get(i).getValue() * layers[l.layerNumber() - 1].getNeurons().get(i).getWeights()[i] + n.getBias();
-                    }
-                    n.setValue(Sigmoid.calculateY(weightSum));
-                    weightSum = 0;
+        // Process hidden and output layers
+        for(int l = 1; l < layers.length; l++) {
+            for(Neuron currentNeuron : layers[l].getNeurons()) {
+                double weightSum = 0;
+                // Sum up inputs * weights from previous layer
+                for(int i = 0; i < layers[l - 1].getNeurons().size(); i++) {
+                    weightSum += layers[l - 1].getNeurons().get(i).getValue() * currentNeuron.getWeights()[i];
                 }
+                weightSum += currentNeuron.getBias();
+                currentNeuron.setValue(Sigmoid.calculateY(weightSum));
+                System.out.println(currentNeuron);
             }
         }
     }
@@ -115,10 +121,24 @@ public class MultiLayeredPerceptron {
     }
 
     public void forwardPassesWithBackwards(double[][] I, double[] O, double learningRate) {
-        System.out.println("\nPerforming forward passes and then backpropagation");
         forwardPasses(I);
         System.out.println("Backpropagation error: " + backwards(I, O, learningRate));
-        forwardPasses(I);
+    }
+
+    public void testXOR() {
+        double[][] testInputs = {
+            {0, 0},
+            {0, 1},
+            {1, 0},
+            {1, 1}
+        };
+
+        System.out.println("Testing XOR outputs:");
+        for (double[] input : testInputs) {
+            forward(input);
+            double output = layers[layers.length - 1].getNeurons().get(0).getValue();
+            System.out.printf("Input: %s, Output: %.4f%n", Arrays.toString(input), output);
+        }
     }
 
     @Override

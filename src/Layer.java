@@ -10,8 +10,8 @@ public class Layer {
         this.layerNumber = layerNumber;
 
         for(int i = 0; i < noOfNeurons; i++) { // Generate neurons, crazy stuff
-            Neuron neuron = new Neuron(i);
-            neuron.setWeights(previousWeights); // null for layer 0!
+            Neuron neuron = new Neuron(noOfPreviousWeights);
+            //neuron.setWeights(previousWeights); // null for layer 0!
             neurons.add(neuron);
 
             // For debugging
