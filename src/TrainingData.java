@@ -4,6 +4,8 @@ public class TrainingData {
     Random rand = new Random();
     double[][] trainingVectors;
     double[] trainingVectorOutputs;
+    double[][] testingVectors;
+    double[] testingVectorOutputs;
 
     public double[][] xorInputData = new double[][]{
             {0, 0},
@@ -26,8 +28,22 @@ public class TrainingData {
             trainingVectorOutputs[i] = Math.sin(combination);
         }
     }
+    public void generateTestingVectors(int noOfInputs, int noOfVectors) {
+        testingVectors = new double[noOfVectors][noOfInputs];
+        testingVectorOutputs = new double[noOfVectors];
+        for(int i = 0; i < noOfVectors; i++) {
+            for(int j = 0; j < noOfInputs; j++) {
+                testingVectors[i][j] = rand.nextDouble(-1, 1);
+            }
+        }
+        for(int i = 0; i < noOfVectors; i++) {
+            double combination = testingVectors[i][0] - testingVectors[i][1] + testingVectors[i][2] - testingVectors[i][3];
+            testingVectorOutputs[i] = Math.sin(combination);
+        }
+    }
 
     public TrainingData(int noOfInputs, int noOfVectors) {
-        generateTrainingVectors(noOfInputs, noOfVectors);
+        generateTrainingVectors(noOfInputs, noOfVectors - 100);
+        generateTestingVectors(noOfInputs, 100);
     }
 }

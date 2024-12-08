@@ -32,7 +32,10 @@ public class MultiLayeredPerceptron {
         correctlyPredicts(data);*/
 
         train(data.trainingVectors, data.trainingVectorOutputs, 100000);
-        testOutputs(data.trainingVectors, data.trainingVectorOutputs);
+        System.out.println("Training set");
+        testOutputs(data.trainingVectors, data.trainingVectorOutputs, 0.1);
+        System.out.println("Testing set");
+        testOutputs(data.testingVectors, data.testingVectorOutputs, 0.1);
     }
 
     public void randomise() {
@@ -116,14 +119,19 @@ public class MultiLayeredPerceptron {
         }
     }
 
-    public void testOutputs(double[][] inputs, double[] outputs) { // Maybe move this to TrainingData to clean up the file
-        System.out.println("Testing outputs:");
+    public void testOutputs(double[][] inputs, double[] outputs, double acceptableError) { // Maybe move this to TrainingData to clean up the file
+        System.out.println("Testing outputs...");
         int count = 0;
+        int correctOutputs = 0;
         for (double[] input : inputs) {
             forward(input);
             double output = layers[layers.length - 1].getNeurons().getFirst().getValue();
-            System.out.println("Input: " + Arrays.toString(input) + ", Actual Output: " + output + ", Expected Output: " + outputs[count++]);
+            if(Math.abs(output - outputs[count++]) < acceptableError) {
+                correctOutputs++;
+            }
+            //System.out.println("Input: " + Arrays.toString(input) + ", Actual Output: " + output + ", Expected Output: " + outputs[count++]);
         }
+        System.out.println("Correct outputs: " + correctOutputs + "/" + outputs.length);
     }
 
     public void train(double[][] input, double[] output, int epochs) {
