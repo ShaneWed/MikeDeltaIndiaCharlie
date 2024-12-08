@@ -33,18 +33,20 @@ public class MultiLayerPerceptron {
         randomise();
     }
 
-    public void executeSinFunction() throws IOException {
+    public void executeSinFunction(int epochs) throws IOException {
         System.out.println("Executing with the sin function...");
-        train(data.trainingVectors, data.trainingVectorOutputs, 100000, sinErrorReport);
+        sinErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
+        train(data.trainingVectors, data.trainingVectorOutputs, epochs, sinErrorReport);
         System.out.print("Training set");
         testOutputs(data.trainingVectors, data.trainingVectorOutputs, 0.1);
         System.out.print("Testing set");
         testOutputs(data.testingVectors, data.testingVectorOutputs, 0.1);
     }
 
-    public void executeXorFunction() throws IOException {
+    public void executeXorFunction(int epochs) throws IOException {
         System.out.println("Executing with xor function...");
-        train(data.xorInputData, data.xorOutputData, 10000, xorErrorReport);
+        xorErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
+        train(data.xorInputData, data.xorOutputData, epochs, xorErrorReport);
         System.out.print("Training set");
         testOutputs(data.xorInputData, data.xorOutputData, 0);
         correctlyPredicts(data);
