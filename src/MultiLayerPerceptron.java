@@ -1,41 +1,53 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Random;
 
-public class MultiLayeredPerceptron {
-    final int numOfInputs = 4;
-    final int numOfOutputs = 1;
-    final int hiddenUnitsPerLayer = 5;
+public class MultiLayerPerceptron {
+    int numOfInputs;
+    int numOfOutputs;
+    int hiddenUnitsPerLayer;
     double learningRate;
+    TrainingData data;
 
     Layer[] layers;
 
+    FileWriter sinErrorReport = new FileWriter("SinErrorReport");
+    FileWriter xorErrorReport = new FileWriter("XorErrorReport");
+
     // This will have an input layer, one hidden layer, and an output layer
     // Try to implement variable hidden layers eventually
-    public MultiLayeredPerceptron(double learningRate) {
+    public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate) throws IOException {
+        this.numOfInputs = numOfInputs;
+        this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
+        this.numOfOutputs = numOfOutputs;
         this.learningRate = learningRate;
-        TrainingData data = new TrainingData(4, 500);
+        this.data = new TrainingData(4, 500);
 
-        // can probably just leave previousWeights as nothing since randomise changes it
+        // Should move this to a fancy little layer factory
         Layer lowerLayer = new Layer(0, numOfInputs, numOfInputs); // input
         Layer upperLayer = new Layer(1, hiddenUnitsPerLayer, numOfInputs); // hidden
         Layer outputLayer = new Layer(2, numOfOutputs, hiddenUnitsPerLayer); // output
         layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
 
         randomise();
+    }
 
-        // XOR function
-        /*
-        train(data.xorInputData, data.xorOutputData, 100000);
-        testOutputs(data.xorInputData);
-
-        System.out.println("Does the network correctly predict the XOR function?");
-        correctlyPredicts(data);*/
-
-        train(data.trainingVectors, data.trainingVectorOutputs, 100000);
-        System.out.println("Training set");
+    public void executeSinFunction() throws IOException {
+        System.out.println("Executing with the sin function...");
+        train(data.trainingVectors, data.trainingVectorOutputs, 100000, sinErrorReport);
+        System.out.print("Training set");
         testOutputs(data.trainingVectors, data.trainingVectorOutputs, 0.1);
-        System.out.println("Testing set");
+        System.out.print("Testing set");
         testOutputs(data.testingVectors, data.testingVectorOutputs, 0.1);
+    }
+
+    public void executeXorFunction() throws IOException {
+        System.out.println("Executing with xor function...");
+        train(data.xorInputData, data.xorOutputData, 10000, xorErrorReport);
+        System.out.print("Training set");
+        testOutputs(data.xorInputData, data.xorOutputData, 0);
+        correctlyPredicts(data);
     }
 
     public void randomise() {
@@ -51,7 +63,7 @@ public class MultiLayeredPerceptron {
         }
     }
 
-    public double backwards(double[][] inputs, double[] t, double learningRate) {
+    public double backwards(double[] t, double learningRate) {
         double error = 0;
 
         for(int i = layers.length - 1; i > 0; i--) {
@@ -72,20 +84,18 @@ public class MultiLayeredPerceptron {
                     double biasDelta = learningRate * delta;
                     neuron.setBias(neuron.getBias() + biasDelta);
                 }
-            } else { // Hidden layers
+            } else { // Hidden layer
                 for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
                     Neuron neuron = currentLayer.getNeurons().get(j);
                     double delta = 0;
-                    
-                    // Calculate delta based on next layer
+
                     for(int k = 0; k < layers[i + 1].getNeurons().size(); k++) {
                         Neuron nextNeuron = layers[i + 1].getNeurons().get(k);
                         delta += nextNeuron.getDelta() * nextNeuron.getWeights()[j];
                     }
                     delta *= Sigmoid.sigmoidDerivative(neuron.getPreActivation());
                     neuron.setDelta(delta);
-                    
-                    // Update weights
+
                     for(int k = 0; k < layers[i - 1].getNeurons().size(); k++) {
                         double weightDelta = learningRate * delta * layers[i - 1].getNeurons().get(k).getValue();
                         neuron.updateWeights(k, weightDelta);
@@ -120,7 +130,6 @@ public class MultiLayeredPerceptron {
     }
 
     public void testOutputs(double[][] inputs, double[] outputs, double acceptableError) { // Maybe move this to TrainingData to clean up the file
-        System.out.println("Testing outputs...");
         int count = 0;
         int correctOutputs = 0;
         for (double[] input : inputs) {
@@ -131,51 +140,49 @@ public class MultiLayeredPerceptron {
             }
             //System.out.println("Input: " + Arrays.toString(input) + ", Actual Output: " + output + ", Expected Output: " + outputs[count++]);
         }
-        System.out.println("Correct outputs: " + correctOutputs + "/" + outputs.length);
+        System.out.println(" correct outputs: " + correctOutputs + "/" + outputs.length);
     }
 
-    public void train(double[][] input, double[] output, int epochs) {
+    public void train(double[][] input, double[] output, int epochs, FileWriter writer) throws IOException {
+        double totalError = 0;
         for(int epoch = 0; epoch < epochs; epoch++) {
-            double totalError = 0;
-
-            // Process each training example individually
+            totalError = 0;
             for(int i = 0; i < input.length; i++) {
-                // Forward pass
                 forward(input[i]);
-
-                // Backward pass
-                double error = backwards(
-                        new double[][]{input[i]},
-                        new double[]{output[i]},
-                        learningRate
-                );
+                double error = backwards(new double[]{output[i]}, learningRate);
                 totalError += Math.abs(error);
             }
-
             if(epoch % 1000 == 0) {
-                System.out.printf("Epoch %d, Error: %.4f%n", epoch, totalError);
+                writer.write(epoch + "," + totalError + "\n");
+                writer.flush();
+                System.out.println("Epoch #" + epoch + ", Current error: " + totalError);
             }
         }
+        writer.write(epochs + "," + totalError + "\n");
+        writer.flush();
+        System.out.println("Epoch #" + epochs + ", Current error: " + totalError);
+        writer.close();
     }
 
-    public void correctlyPredicts(TrainingData data) {
-        int[] actualOutput = new int[data.xorOutputData.length];
+    public void correctlyPredicts(TrainingData data) { // Only works for XOR, sucks anyway
+        double[] actualOutput = new double[data.xorOutputData.length];
         for(int i = 0; i < data.xorInputData.length; i++) {
             forward(data.xorInputData[i]);
-            System.out.println("Expected " + Arrays.toString(data.xorInputData[i]) + " = " + data.xorOutputData[i]);
-            System.out.println("Actual " + Arrays.toString(data.xorInputData[i]) + " = " + layers[layers.length - 1].getNeurons().getFirst().getRoundedValue());
+            System.out.print("Expected " + Arrays.toString(data.xorInputData[i]) + " = " + data.xorOutputData[i]);
+            System.out.println(", Actual " + Arrays.toString(data.xorInputData[i]) + " = " + layers[layers.length - 1].getNeurons().getFirst().getRoundedValue());
             actualOutput[i] = layers[layers.length - 1].getNeurons().getFirst().getRoundedValue();
         }
         boolean outputMatches = true;
         for(int i = 0; i < actualOutput.length; i++) {
             if(actualOutput[i] != (int) data.xorOutputData[i]) {
+                System.out.println((int) data.xorOutputData[i]);
                 outputMatches = false;
             }
         }
         if(outputMatches) {
             System.out.println("Network correctly predicts XOR!");
         } else {
-            System.out.println("L network");
+            System.out.println("Network fails to correctly predict XOR...");
         }
     }
 

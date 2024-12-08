@@ -1,12 +1,13 @@
+import java.io.IOException;
+
 public class Main {
-    public static void main(String[] args) {
-        System.out.println("Hello World!");
+    public static void main(String[] args) throws IOException {
+        MultiLayerPerceptron MikeDeltaIndiaCharlie = new MultiLayerPerceptron(4, 5, 1, 0.2);
+        MultiLayerPerceptron Darius = new MultiLayerPerceptron(4, 5,1, 0.6);
 
-        double learningRate = 0.6;
+        MikeDeltaIndiaCharlie.executeXorFunction();
+        Darius.executeSinFunction();
 
-        MultiLayeredPerceptron MikeDeltaIndiaCharlie = new MultiLayeredPerceptron(learningRate);
-
-        System.out.println("Multi layered perceptron created!\n");
-        //System.out.println(MikeDeltaIndiaCharlie); // Because I'm sick of IntelliJ warnings
+        System.out.println("Multi layer perceptron created!\n");
     }
 }
