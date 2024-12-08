@@ -3,7 +3,7 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         double mdicLearningRate = 0.3;
-        int mdicEpochs = 1000;
+        int mdicEpochs = 5000;
         double dariusLearningRate = 0.2;
         int dariusEpochs = 2000;
 

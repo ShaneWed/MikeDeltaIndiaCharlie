@@ -65,70 +65,89 @@ public class MultiLayerPerceptron {
         }
     }
 
+    public void forward(double[] I) {
+        for(int i = 0; i < I.length; i++) {
+            layers[0].getNeurons().get(i).setValue(I[i]);
+        }
+
+        for(int l = 1; l < layers.length; l++) {
+            for(Neuron n : layers[l].getNeurons()) {
+                double weightSum = 0;
+                for(int i = 0; i < layers[l - 1].getNeurons().size(); i++) {
+                    weightSum += layers[l - 1].getNeurons().get(i).getValue() * n.getWeights()[i];
+                }
+                weightSum += n.getBias();
+                n.setPreActivation(weightSum);
+                n.setValue(Sigmoid.calculateY(weightSum));
+            }
+        }
+    }
+
     public double backwards(double[] t, double learningRate) {
         double error = 0;
+        double delta;
+        double weightDelta;
 
         for(int i = layers.length - 1; i > 0; i--) {
             Layer currentLayer = layers[i];
             
             if(i == layers.length - 1) { // Output layer
                 for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
-                    Neuron neuron = currentLayer.getNeurons().get(j);
-                    error = t[j] - neuron.getValue();
-                    double delta = error * Sigmoid.sigmoidDerivative(neuron.getPreActivation());
-                    neuron.setDelta(delta);
+                    Neuron n = currentLayer.getNeurons().get(j);
+                    error = t[j] - n.getValue();
+                    delta = error * Sigmoid.sigmoidDerivative(n.getPreActivation());
+                    n.setDelta(delta);
                     
-                    // Update weights
+                    // Updating the weights & bias
                     for(int k = 0; k < layers[i - 1].getNeurons().size(); k++) {
-                        double weightDelta = learningRate * delta * layers[i - 1].getNeurons().get(k).getValue();
-                        neuron.updateWeights(k, weightDelta);
+                        weightDelta = learningRate * delta * layers[i - 1].getNeurons().get(k).getValue();
+                        n.updateWeights(k, weightDelta);
                     }
-                    double biasDelta = learningRate * delta;
-                    neuron.setBias(neuron.getBias() + biasDelta);
+                    n.setBias(n.getBias() + learningRate * delta);
                 }
-            } else { // Hidden layer
+            } else { // Hidden layers
                 for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
-                    Neuron neuron = currentLayer.getNeurons().get(j);
-                    double delta = 0;
+                    Neuron n = currentLayer.getNeurons().get(j);
+                    delta = 0;
 
                     for(int k = 0; k < layers[i + 1].getNeurons().size(); k++) {
                         Neuron nextNeuron = layers[i + 1].getNeurons().get(k);
                         delta += nextNeuron.getDelta() * nextNeuron.getWeights()[j];
                     }
-                    delta *= Sigmoid.sigmoidDerivative(neuron.getPreActivation());
-                    neuron.setDelta(delta);
+                    delta *= Sigmoid.sigmoidDerivative(n.getPreActivation());
+                    n.setDelta(delta);
 
+                    // Updating the weights & bias; Should instead make this a function
                     for(int k = 0; k < layers[i - 1].getNeurons().size(); k++) {
-                        double weightDelta = learningRate * delta * layers[i - 1].getNeurons().get(k).getValue();
-                        neuron.updateWeights(k, weightDelta);
+                        weightDelta = learningRate * delta * layers[i - 1].getNeurons().get(k).getValue();
+                        n.updateWeights(k, weightDelta);
                     }
-                    double biasDelta = learningRate * delta;
-                    neuron.setBias(neuron.getBias() + biasDelta);
+                    n.setBias(n.getBias() + learningRate * delta);
                 }
             }
         }
         return error;
     }
 
-    public void forward(double[] I) {
-        // Set input layer values
-        for(int i = 0; i < I.length; i++) {
-            layers[0].getNeurons().get(i).setValue(I[i]);
-        }
-
-        // Process hidden and output layers
-        for(int l = 1; l < layers.length; l++) {
-            for(Neuron currentNeuron : layers[l].getNeurons()) {
-                double weightSum = 0;
-                // Sum up inputs * weights from previous layer
-                for(int i = 0; i < layers[l - 1].getNeurons().size(); i++) {
-                    weightSum += layers[l - 1].getNeurons().get(i).getValue() * currentNeuron.getWeights()[i];
-                }
-                weightSum += currentNeuron.getBias();
-                currentNeuron.setPreActivation(weightSum);
-                currentNeuron.setValue(Sigmoid.calculateY(weightSum));
+    public void train(double[][] input, double[] output, int epochs, FileWriter writer) throws IOException {
+        double totalError = 0;
+        for(int i = 0; i < epochs; i++) {
+            totalError = 0;
+            for(int j = 0; j < input.length; j++) {
+                forward(input[j]);
+                double error = backwards(new double[]{output[j]}, learningRate);
+                totalError += Math.abs(error);
+            }
+            if(i % 1000 == 0) {
+                writer.write(i + "," + totalError + "\n");
+                writer.flush();
+                System.out.println("Epoch #" + i + ", Current error: " + totalError);
             }
         }
+        writer.write(epochs + "," + totalError + "\n");
+        writer.flush();
+        System.out.println("Epoch #" + epochs + ", Current error: " + totalError);
+        writer.close();
     }
 
     public void testOutputs(double[][] inputs, double[] outputs, double acceptableError) { // Maybe move this to TrainingData to clean up the file
@@ -143,27 +162,6 @@ public class MultiLayerPerceptron {
             //System.out.println("Input: " + Arrays.toString(input) + ", Actual Output: " + output + ", Expected Output: " + outputs[count++]);
         }
         System.out.println(" correct outputs: " + correctOutputs + "/" + outputs.length);
-    }
-
-    public void train(double[][] input, double[] output, int epochs, FileWriter writer) throws IOException {
-        double totalError = 0;
-        for(int epoch = 0; epoch < epochs; epoch++) {
-            totalError = 0;
-            for(int i = 0; i < input.length; i++) {
-                forward(input[i]);
-                double error = backwards(new double[]{output[i]}, learningRate);
-                totalError += Math.abs(error);
-            }
-            if(epoch % 1000 == 0) {
-                writer.write(epoch + "," + totalError + "\n");
-                writer.flush();
-                System.out.println("Epoch #" + epoch + ", Current error: " + totalError);
-            }
-        }
-        writer.write(epochs + "," + totalError + "\n");
-        writer.flush();
-        System.out.println("Epoch #" + epochs + ", Current error: " + totalError);
-        writer.close();
     }
 
     public void correctlyPredicts(TrainingData data) { // Only works for XOR, sucks anyway

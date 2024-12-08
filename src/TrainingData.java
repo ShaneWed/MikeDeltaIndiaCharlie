@@ -28,6 +28,7 @@ public class TrainingData {
             trainingVectorOutputs[i] = Math.sin(combination);
         }
     }
+    // This is me being lazy because I didn't want to have to figure out how to split the array. It works so I don't really care!
     public void generateTestingVectors(int noOfInputs, int noOfVectors) {
         testingVectors = new double[noOfVectors][noOfInputs];
         testingVectorOutputs = new double[noOfVectors];

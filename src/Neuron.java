@@ -3,19 +3,17 @@ import java.util.Random;
 
 public class Neuron {
     double value;
-    double preActivation;
     double bias;
-    double[] weights;
     double delta;
+    double preActivation;
+    double[] weights;
 
     public Neuron(int noOfWeights) {
         value = 0;
-        preActivation = 0;
         bias = 0;
-        // This represents the weights of neurons in the previous layer, which will determine the value of this neuron
-        weights = new double[noOfWeights];
         delta = 0;
-
+        preActivation = 0;
+        weights = new double[noOfWeights];
     }
 
     public void setWeights(double[] weights) {
@@ -26,7 +24,6 @@ public class Neuron {
             weights[i] = rand.nextDouble(-1, 1);
         }
     }
-
     public void setValue(double value) {
         this.value = value;
     }
@@ -56,11 +53,9 @@ public class Neuron {
     public double getDelta() {
         return delta;
     }
-
     public double getPreActivation() {
         return preActivation;
     }
-
     public void setPreActivation(double preActivation) {
         this.preActivation = preActivation;
     }
