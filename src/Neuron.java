@@ -44,8 +44,6 @@ public class Neuron {
     }
     public void updateWeights(int weightIndex, double delta) {
         weights[weightIndex] += delta;
-        //setDelta(delta);
-        //System.out.println(Arrays.toString(weights) + " " + delta);
     }
     public void setDelta(double delta) {
         this.delta = delta;

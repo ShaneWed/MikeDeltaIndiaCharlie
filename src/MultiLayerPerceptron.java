@@ -6,10 +6,9 @@ import java.util.Random;
 public class MultiLayerPerceptron {
     int numOfInputs;
     int numOfOutputs;
-    int hiddenUnitsPerLayer;
+    int hiddenUnitsPerLayer; // These num of x are probably redundant, only used in the constructor
     double learningRate;
     TrainingData data;
-
     Layer[] layers;
 
     FileWriter sinErrorReport = new FileWriter("SinErrorReport");
