@@ -77,7 +77,7 @@ public class MultiLayerPerceptron {
                 }
                 weightSum += n.getBias();
                 n.setPreActivation(weightSum);
-                n.setValue(Sigmoid.calculateY(weightSum));
+                n.setValue(Tanh.calculateTanh(weightSum));
             }
         }
     }
@@ -94,7 +94,7 @@ public class MultiLayerPerceptron {
                 for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
                     Neuron n = currentLayer.getNeurons().get(j);
                     error = t[j] - n.getValue();
-                    delta = error * Sigmoid.sigmoidDerivative(n.getPreActivation());
+                    delta = error * Tanh.tanhDerivative(n.getPreActivation());
                     n.setDelta(delta);
                     
                     // Updating the weights & bias
@@ -113,7 +113,7 @@ public class MultiLayerPerceptron {
                         Neuron nextNeuron = layers[i + 1].getNeurons().get(k);
                         delta += nextNeuron.getDelta() * nextNeuron.getWeights()[j];
                     }
-                    delta *= Sigmoid.sigmoidDerivative(n.getPreActivation());
+                    delta *= Tanh.tanhDerivative(n.getPreActivation());
                     n.setDelta(delta);
 
                     // Updating the weights & bias; Should instead make this a function

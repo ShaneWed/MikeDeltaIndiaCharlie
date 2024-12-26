@@ -42,9 +42,6 @@ public class Neuron {
     public double[] getWeights() {
         return weights;
     }
-    public void updateWeights(int weightIndex, double delta) {
-        weights[weightIndex] += delta;
-    }
     public void setDelta(double delta) {
         this.delta = delta;
     }
@@ -56,6 +53,17 @@ public class Neuron {
     }
     public void setPreActivation(double preActivation) {
         this.preActivation = preActivation;
+    }
+
+    public void updateWeights(int weightIndex, double delta) {
+        weights[weightIndex] += delta;
+    }
+    public void updateAllWeights(double delta, Layer previousLayer, double learningRate) {
+        this.setDelta(delta);
+        for(int i = 0; i < previousLayer.getNeurons().size(); i++) {
+            this.updateWeights(i, learningRate * delta * previousLayer.getNeurons().get(i).getValue());
+        }
+        this.setBias(this.getBias() + learningRate * delta);
     }
 
     @Override

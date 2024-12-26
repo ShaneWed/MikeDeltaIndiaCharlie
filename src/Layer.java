@@ -11,7 +11,6 @@ public class Layer {
 
         for(int i = 0; i < noOfNeurons; i++) { // Generate neurons, crazy stuff
             Neuron neuron = new Neuron(noOfPreviousWeights);
-            //neuron.setWeights(previousWeights); // null for layer 0!
             neurons.add(neuron);
 
             // For debugging
@@ -22,18 +21,9 @@ public class Layer {
     public ArrayList<Neuron> getNeurons() {
         return neurons;
     }
-    public double[] getPreviousWeights() {
-        return previousWeights;
-    }
+
     public int layerNumber() {
         return layerNumber;
     }
 
-    public void updateNeurons(double[] previousWeights) {
-        // This should be called whenever the weights change
-        // Or it's completely unnecessary we'll see
-        for(Neuron neuron : neurons) {
-            neuron.setWeights(previousWeights);
-        }
-    }
 }
