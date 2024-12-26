@@ -85,7 +85,6 @@ public class MultiLayerPerceptron {
     public double backwards(double[] t, double learningRate) {
         double error = 0;
         double delta;
-        double weightDelta;
 
         for(int i = layers.length - 1; i > 0; i--) {
             Layer currentLayer = layers[i];
@@ -95,14 +94,7 @@ public class MultiLayerPerceptron {
                     Neuron n = currentLayer.getNeurons().get(j);
                     error = t[j] - n.getValue();
                     delta = error * Tanh.tanhDerivative(n.getPreActivation());
-                    n.setDelta(delta);
-                    
-                    // Updating the weights & bias
-                    for(int k = 0; k < layers[i - 1].getNeurons().size(); k++) {
-                        weightDelta = learningRate * delta * layers[i - 1].getNeurons().get(k).getValue();
-                        n.updateWeights(k, weightDelta);
-                    }
-                    n.setBias(n.getBias() + learningRate * delta);
+                    n.updateWeights(delta, layers[i - 1], learningRate);
                 }
             } else { // Hidden layers
                 for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
@@ -114,14 +106,7 @@ public class MultiLayerPerceptron {
                         delta += nextNeuron.getDelta() * nextNeuron.getWeights()[j];
                     }
                     delta *= Tanh.tanhDerivative(n.getPreActivation());
-                    n.setDelta(delta);
-
-                    // Updating the weights & bias; Should instead make this a function
-                    for(int k = 0; k < layers[i - 1].getNeurons().size(); k++) {
-                        weightDelta = learningRate * delta * layers[i - 1].getNeurons().get(k).getValue();
-                        n.updateWeights(k, weightDelta);
-                    }
-                    n.setBias(n.getBias() + learningRate * delta);
+                    n.updateWeights(delta, layers[i - 1], learningRate);
                 }
             }
         }

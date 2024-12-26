@@ -16,9 +16,6 @@ public class Neuron {
         weights = new double[noOfWeights];
     }
 
-    public void setWeights(double[] weights) {
-        this.weights = weights;
-    }
     public void setRandomWeights(Random rand) {
         for(int i = 0; i < weights.length; i++) {
             weights[i] = rand.nextDouble(-1, 1);
@@ -54,16 +51,15 @@ public class Neuron {
     public void setPreActivation(double preActivation) {
         this.preActivation = preActivation;
     }
-
-    public void updateWeights(int weightIndex, double delta) {
-        weights[weightIndex] += delta;
-    }
-    public void updateAllWeights(double delta, Layer previousLayer, double learningRate) {
+    public void updateWeights(double delta, Layer previousLayer, double learningRate) {
         this.setDelta(delta);
         for(int i = 0; i < previousLayer.getNeurons().size(); i++) {
-            this.updateWeights(i, learningRate * delta * previousLayer.getNeurons().get(i).getValue());
+            this.updateWeightsHelper(i, learningRate * delta * previousLayer.getNeurons().get(i).getValue());
         }
         this.setBias(this.getBias() + learningRate * delta);
+    }
+    private void updateWeightsHelper(int weightIndex, double delta) {
+        weights[weightIndex] += delta;
     }
 
     @Override
