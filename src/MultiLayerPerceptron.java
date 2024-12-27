@@ -14,6 +14,7 @@ public class MultiLayerPerceptron {
 
     FileWriter sinErrorReport = new FileWriter("SinErrorReport");
     FileWriter xorErrorReport = new FileWriter("XorErrorReport");
+    FileWriter irvineErrorReport = new FileWriter("IrvineErrorReport");
 
     // This will have an input layer, one hidden layer, and an output layer
     // Try to implement variable hidden layers eventually
@@ -23,7 +24,8 @@ public class MultiLayerPerceptron {
         this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
         this.numOfOutputs = numOfOutputs;
         this.learningRate = learningRate;
-        this.data = new TrainingData(4, 500);
+        this.data = new TrainingData();
+        //this.data = new TrainingData(4, 500);
 
         // Should move this to a fancy little layer factory
         Layer lowerLayer = new Layer(0, numOfInputs, numOfInputs); // input
@@ -32,6 +34,14 @@ public class MultiLayerPerceptron {
         layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
 
         randomise();
+    }
+
+    public void exerciseIrvine(int epochs) throws IOException {
+        System.out.println("Executing Irvine...");
+        irvineErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
+        train(data.trainingVectors, data.trainingVectorOutputs, epochs, irvineErrorReport);
+        System.out.println("Training set");
+        System.out.println("Nothing else!");
     }
 
     public void executeSinFunction(int epochs) throws IOException {
@@ -121,7 +131,7 @@ public class MultiLayerPerceptron {
             totalError = 0;
             for(int j = 0; j < input.length; j++) {
                 forward(input[j]);
-                double error = backwards(new double[]{output[j]}, learningRate);
+                double error = backwards(new double[]{output[j]}, learningRate); // TODO passing an array of size 1, hard coding to 1 output, HAVE TO FIX
                 totalError += Math.abs(error);
             }
             if(i % 1000 == 0) {
