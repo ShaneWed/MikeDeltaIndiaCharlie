@@ -9,6 +9,7 @@ public class MultiLayerPerceptron {
     int hiddenUnitsPerLayer; // These num of x are probably redundant, only used in the constructor
     double learningRate;
     TrainingData data;
+    ActivationFunction activationFunction;
     Layer[] layers;
 
     FileWriter sinErrorReport = new FileWriter("SinErrorReport");
@@ -16,7 +17,8 @@ public class MultiLayerPerceptron {
 
     // This will have an input layer, one hidden layer, and an output layer
     // Try to implement variable hidden layers eventually
-    public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate) throws IOException {
+    public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate, ActivationFunction function) throws IOException {
+        this.activationFunction = function;
         this.numOfInputs = numOfInputs;
         this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
         this.numOfOutputs = numOfOutputs;
@@ -77,7 +79,7 @@ public class MultiLayerPerceptron {
                 }
                 weightSum += n.getBias();
                 n.setPreActivation(weightSum);
-                n.setValue(Tanh.calculateTanh(weightSum));
+                n.setValue(activationFunction.calculate(weightSum));
             }
         }
     }
@@ -93,7 +95,7 @@ public class MultiLayerPerceptron {
                 for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
                     Neuron n = currentLayer.getNeurons().get(j);
                     error = t[j] - n.getValue();
-                    delta = error * Tanh.tanhDerivative(n.getPreActivation());
+                    delta = error * activationFunction.calculateDerivative(n.getPreActivation());
                     n.updateWeights(delta, layers[i - 1], learningRate);
                 }
             } else { // Hidden layers
@@ -105,7 +107,7 @@ public class MultiLayerPerceptron {
                         Neuron nextNeuron = layers[i + 1].getNeurons().get(k);
                         delta += nextNeuron.getDelta() * nextNeuron.getWeights()[j];
                     }
-                    delta *= Tanh.tanhDerivative(n.getPreActivation());
+                    delta *= activationFunction.calculateDerivative(n.getPreActivation());
                     n.updateWeights(delta, layers[i - 1], learningRate);
                 }
             }
