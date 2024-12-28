@@ -155,6 +155,7 @@ public class MultiLayerPerceptron {
             forward(inputs[i]);
             for(int j = 0; j < outputs[i].length; j++) { // Probably could use some work
                 double output = layers[layers.length - 1].getNeurons().get(j).getValue();
+                //System.out.println("Actual output: " + output + ", Expected output: " + outputs[i][j]);
                 if (Math.abs(output - outputs[i][j]) > acceptableError) {
                     correct = false;
                     break;

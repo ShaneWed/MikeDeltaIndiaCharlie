@@ -6,7 +6,7 @@ public class Main {
 
         double mdicLearningRate = 0.3;
         int mdicEpochs = 5000;
-        double dariusLearningRate = 0.2;
+        double dariusLearningRate = 0.05;
         int dariusEpochs = 10000;
         double irvineLearningRate = 0.4;
         int irvineEpochs = 10000;
