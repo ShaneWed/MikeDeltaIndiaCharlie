@@ -105,7 +105,7 @@ public class MultiLayerPerceptron {
             if(i == layers.length - 1) { // Output layer
                 for(int j = 0; j < currentLayer.getNeurons().size(); j++) { // TODO error isn't being properly calculated or adjusted for during backpropagation
                     Neuron n = currentLayer.getNeurons().get(j);
-                    System.out.println("Value of " + j + "th neuron: " + n.getValue() + ", Expected: " + outputs[j]);
+                    //System.out.println("Value of " + j + "th neuron: " + n.getValue() + ", Expected: " + outputs[j]);
                     error = outputs[j] - n.getValue();
                     delta = error * activationFunction.calculateDerivative(n.getPreActivation());
                     n.updateWeights(delta, layers[i - 1], learningRate);
@@ -124,6 +124,7 @@ public class MultiLayerPerceptron {
                 }
             }
         }
+        error = error / outputs.length;
         return error;
     }
 
@@ -155,7 +156,29 @@ public class MultiLayerPerceptron {
         int count = 0;
         int correctOutputs = 0;
         boolean correct = true;
+
         for(int i = 0; i < inputs.length; i++) {
+            forward(inputs[i]);
+            double maxOutput = -1;
+            int maxOutputIndex = 0;
+            int correctOutputIndex = 0;
+            for(int j = 0; j < outputs[i].length; j++) {
+                if(outputs[i][j] > maxOutput) {
+                    maxOutput = outputs[i][j];
+                    maxOutputIndex = j;
+                }
+                if(outputs[i][j] == 1) {
+                    correctOutputIndex = j;
+                }
+                // check for max output of neuron, compare if this is the same as expected output
+            }
+            if(maxOutputIndex == correctOutputIndex) {
+                correctOutputs++;
+            }
+        }
+
+
+        /*for(int i = 0; i < inputs.length; i++) { // Use this for not Irvine
             forward(inputs[i]);
             for(int j = 0; j < outputs[i].length; j++) { // Probably could use some work
                 double output = layers[layers.length - 1].getNeurons().get(j).getValue();
@@ -168,15 +191,6 @@ public class MultiLayerPerceptron {
             if(correct) {
                 correctOutputs++;
             }
-        }
-        /*for (double[] input : inputs) {
-            forward(input);
-            double[] output = outputs[count];
-            //double output = layers[layers.length - 1].getNeurons().getFirst().getValue();
-            if(Math.abs(output - outputs[count++]) < acceptableError) {
-                correctOutputs++;
-            }
-            //System.out.println("Input: " + Arrays.toString(input) + ", Actual Output: " + output + ", Expected Output: " + outputs[count++]);
         }*/
         System.out.println(" correct outputs: " + correctOutputs + "/" + outputs.length);
     }
