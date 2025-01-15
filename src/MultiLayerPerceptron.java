@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 public class MultiLayerPerceptron {
@@ -41,9 +42,9 @@ public class MultiLayerPerceptron {
         irvineErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
         train(data.trainingVectors, data.trainingVectorOutputs, epochs, irvineErrorReport);
         System.out.print("Training set");
-        testOutputs(data.trainingVectors, data.trainingVectorOutputs, 0.05);
+        testOutputs(data.trainingVectors, data.trainingVectorOutputs);
         System.out.print("Testing set");
-        testOutputs(data.testingVectors, data.testingVectorOutputs, 0.05);
+        testOutputs(data.testingVectors, data.testingVectorOutputs);
     }
 
     public void executeSinFunction(int epochs) throws IOException {
@@ -51,9 +52,9 @@ public class MultiLayerPerceptron {
         sinErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
         train(data.trainingVectors, data.trainingVectorOutputs, epochs, sinErrorReport);
         System.out.print("Training set");
-        testOutputs(data.trainingVectors, data.trainingVectorOutputs, 0.1);
+        testOutputs(data.trainingVectors, data.trainingVectorOutputs);
         System.out.print("Testing set");
-        testOutputs(data.testingVectors, data.testingVectorOutputs, 0.1);
+        testOutputs(data.testingVectors, data.testingVectorOutputs);
     }
 
     public void executeXorFunction(int epochs) throws IOException {
@@ -61,7 +62,7 @@ public class MultiLayerPerceptron {
         xorErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
         train(data.xorInputData, data.xorOutputData, epochs, xorErrorReport);
         System.out.print("Training set");
-        testOutputs(data.xorInputData, data.xorOutputData, 0);
+        testOutputs(data.xorInputData, data.xorOutputData);
     }
 
     public void randomise() {
@@ -152,11 +153,9 @@ public class MultiLayerPerceptron {
         writer.close();
     }
 
-    public void testOutputs(double[][] inputs, double[][] outputs, double acceptableError) { // Maybe move this to TrainingData to clean up the file
-        int count = 0;
+    public void testOutputs(double[][] inputs, double[][] outputs) { // Maybe move this to TrainingData to clean up the file
+        // TODO yeah I messed up this code is comparing the expected outputs with the expected outputs of course it's all correct
         int correctOutputs = 0;
-        boolean correct = true;
-
         for(int i = 0; i < inputs.length; i++) {
             forward(inputs[i]);
             double maxOutput = -1;
@@ -175,6 +174,7 @@ public class MultiLayerPerceptron {
             if(maxOutputIndex == correctOutputIndex) {
                 correctOutputs++;
             }
+            System.out.println(Arrays.toString(inputs[i]) + ", " + Arrays.toString(outputs[i]) + ", " + correctOutputIndex);
         }
 
 
