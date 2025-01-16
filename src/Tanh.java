@@ -1,4 +1,4 @@
-public class Tanh extends ActivationFunction{
+public class Tanh extends ActivationFunction {
     // Has replaced the Sigmoid function in all uses
     // Use tanh for sin calculations because its range is -1 to 1
     public double calculate(double z) {

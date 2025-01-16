@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 public class MultiLayerPerceptron {
@@ -23,8 +24,9 @@ public class MultiLayerPerceptron {
         this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
         this.numOfOutputs = numOfOutputs;
         this.learningRate = learningRate;
-        //this.data = new TrainingData();
-        this.data = new TrainingData(4, 1, 500);
+        // TODO Currently have to manually change which data set is used, implement this better
+        this.data = new TrainingData();
+        //this.data = new TrainingData(4, 1, 500);
 
         // Should move this to a fancy little layer factory
         Layer lowerLayer = new Layer(0, numOfInputs, numOfInputs); // input
@@ -34,14 +36,15 @@ public class MultiLayerPerceptron {
 
         randomise();
     }
-
+    
     public void exerciseIrvine(int epochs) throws IOException {
         System.out.println("Executing Irvine...");
         irvineErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
         train(data.trainingVectors, data.trainingVectorOutputs, epochs, irvineErrorReport);
-        System.out.println("Training set");
-        testOutputs(data.trainingVectors, data.trainingVectorOutputs, 0.05);
-        System.out.println("Nothing else!");
+        System.out.print("Training set");
+        testOutputs(data.trainingVectors, data.trainingVectorOutputs);
+        System.out.print("Testing set");
+        testOutputs(data.testingVectors, data.testingVectorOutputs);
     }
 
     public void executeSinFunction(int epochs) throws IOException {
@@ -49,9 +52,9 @@ public class MultiLayerPerceptron {
         sinErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
         train(data.trainingVectors, data.trainingVectorOutputs, epochs, sinErrorReport);
         System.out.print("Training set");
-        testOutputs(data.trainingVectors, data.trainingVectorOutputs, 0.1);
+        testOutputs(data.trainingVectors, data.trainingVectorOutputs);
         System.out.print("Testing set");
-        testOutputs(data.testingVectors, data.testingVectorOutputs, 0.1);
+        testOutputs(data.testingVectors, data.testingVectorOutputs);
     }
 
     public void executeXorFunction(int epochs) throws IOException {
@@ -59,7 +62,7 @@ public class MultiLayerPerceptron {
         xorErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
         train(data.xorInputData, data.xorOutputData, epochs, xorErrorReport);
         System.out.print("Training set");
-        testOutputs(data.xorInputData, data.xorOutputData, 0);
+        testOutputs(data.xorInputData, data.xorOutputData);
     }
 
     public void randomise() {
@@ -101,8 +104,9 @@ public class MultiLayerPerceptron {
             Layer currentLayer = layers[i];
             
             if(i == layers.length - 1) { // Output layer
-                for(int j = 0; j < currentLayer.getNeurons().size(); j++) {
+                for(int j = 0; j < currentLayer.getNeurons().size(); j++) { // TODO error isn't being properly calculated or adjusted for during backpropagation
                     Neuron n = currentLayer.getNeurons().get(j);
+                    //System.out.println("Value of " + j + "th neuron: " + n.getValue() + ", Expected: " + outputs[j]);
                     error = outputs[j] - n.getValue();
                     delta = error * activationFunction.calculateDerivative(n.getPreActivation());
                     n.updateWeights(delta, layers[i - 1], learningRate);
@@ -121,6 +125,7 @@ public class MultiLayerPerceptron {
                 }
             }
         }
+        error = error / outputs.length;
         return error;
     }
 
@@ -131,11 +136,12 @@ public class MultiLayerPerceptron {
             for(int j = 0; j < input.length; j++) { // Logic here is incorrect
                 forward(input[j]);
                 // Following line needs to pass an array of expected output for each neuron in output layer
-                double error = backwards(output[j], learningRate); // TODO passing an array of size 1, hard coding to 1 output, HAVE TO FIX
+                // Should be doing this ^ now, is still a potential source of bugs I haven't checked it out much
+                double error = backwards(output[j], learningRate);
                 totalError += Math.abs(error);
             }
 
-            if(i % 1000 == 0) {
+            if(i % 100 == 0) {
                 writer.write(i + "," + totalError + "\n");
                 writer.flush();
                 System.out.println("Epoch #" + i + ", Current error: " + totalError);
@@ -147,11 +153,33 @@ public class MultiLayerPerceptron {
         writer.close();
     }
 
-    public void testOutputs(double[][] inputs, double[][] outputs, double acceptableError) { // Maybe move this to TrainingData to clean up the file
-        int count = 0;
+    public void testOutputs(double[][] inputs, double[][] outputs) { // Maybe move this to TrainingData to clean up the file
+        // TODO yeah I messed up this code is comparing the expected outputs with the expected outputs of course it's all correct
         int correctOutputs = 0;
-        boolean correct = true;
         for(int i = 0; i < inputs.length; i++) {
+            forward(inputs[i]);
+            double maxOutput = -1;
+            int maxOutputIndex = 0;
+            int correctOutputIndex = 0;
+            for(int j = 0; j < outputs[i].length; j++) {
+                double output = layers[layers.length - 1].getNeurons().get(j).getValue();
+                if(output > maxOutput) {
+                    maxOutput = output;
+                    maxOutputIndex = j;
+                }
+                if(outputs[i][j] == 1) {
+                    correctOutputIndex = j;
+                }
+                // check for max output of neuron, compare if this is the same as expected output
+            }
+            if(maxOutputIndex == correctOutputIndex) {
+                correctOutputs++;
+            }
+            //System.out.println(Arrays.toString(inputs[i]) + ", " + Arrays.toString(outputs[i]) + ", " + correctOutputIndex);
+        }
+
+
+        /*for(int i = 0; i < inputs.length; i++) { // Use this for not Irvine
             forward(inputs[i]);
             for(int j = 0; j < outputs[i].length; j++) { // Probably could use some work
                 double output = layers[layers.length - 1].getNeurons().get(j).getValue();
@@ -164,40 +192,9 @@ public class MultiLayerPerceptron {
             if(correct) {
                 correctOutputs++;
             }
-        }
-        /*for (double[] input : inputs) {
-            forward(input);
-            double[] output = outputs[count];
-            //double output = layers[layers.length - 1].getNeurons().getFirst().getValue();
-            if(Math.abs(output - outputs[count++]) < acceptableError) {
-                correctOutputs++;
-            }
-            //System.out.println("Input: " + Arrays.toString(input) + ", Actual Output: " + output + ", Expected Output: " + outputs[count++]);
         }*/
         System.out.println(" correct outputs: " + correctOutputs + "/" + outputs.length);
     }
-
-    /*public void correctlyPredicts(TrainingData data) { // Only works for XOR, sucks anyway
-        double[] actualOutput = new double[data.xorOutputData.length];
-        for(int i = 0; i < data.xorInputData.length; i++) {
-            forward(data.xorInputData[i]);
-            System.out.print("Expected " + Arrays.toString(data.xorInputData[i]) + " = " + data.xorOutputData[i]);
-            System.out.println(", Actual " + Arrays.toString(data.xorInputData[i]) + " = " + layers[layers.length - 1].getNeurons().getFirst().getRoundedValue());
-            actualOutput[i] = layers[layers.length - 1].getNeurons().getFirst().getRoundedValue();
-        }
-        boolean outputMatches = true;
-        for(int i = 0; i < actualOutput.length; i++) {
-            if(actualOutput[i] != (int) data.xorOutputData[i]) {
-                System.out.println((int) data.xorOutputData[i]);
-                outputMatches = false;
-            }
-        }
-        if(outputMatches) {
-            System.out.println("Network correctly predicts XOR!");
-        } else {
-            System.out.println("Network fails to correctly predict XOR...");
-        }
-    }*/ // Probably don't need correctly predicts xor anymore
 
     @Override
     public String toString() {
