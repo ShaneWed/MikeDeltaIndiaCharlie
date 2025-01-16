@@ -162,8 +162,9 @@ public class MultiLayerPerceptron {
             int maxOutputIndex = 0;
             int correctOutputIndex = 0;
             for(int j = 0; j < outputs[i].length; j++) {
-                if(outputs[i][j] > maxOutput) {
-                    maxOutput = outputs[i][j];
+                double output = layers[layers.length - 1].getNeurons().get(j).getValue();
+                if(output > maxOutput) {
+                    maxOutput = output;
                     maxOutputIndex = j;
                 }
                 if(outputs[i][j] == 1) {
@@ -174,7 +175,7 @@ public class MultiLayerPerceptron {
             if(maxOutputIndex == correctOutputIndex) {
                 correctOutputs++;
             }
-            System.out.println(Arrays.toString(inputs[i]) + ", " + Arrays.toString(outputs[i]) + ", " + correctOutputIndex);
+            //System.out.println(Arrays.toString(inputs[i]) + ", " + Arrays.toString(outputs[i]) + ", " + correctOutputIndex);
         }
 
 

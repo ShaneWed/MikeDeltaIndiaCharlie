@@ -9,8 +9,8 @@ public class Main {
         int mikeEpochs = 5000;
         double dariusLearningRate = 0.05;
         int dariusEpochs = 10000;
-        double irvineLearningRate = 0.1;
-        int irvineEpochs = 1;
+        double irvineLearningRate = 0.2;
+        int irvineEpochs = 1000; // 9733, 2361;
 
         MultiLayerPerceptron Mike = new MultiLayerPerceptron(2, 5, 1, mikeLearningRate, tanh);
         MultiLayerPerceptron Darius = new MultiLayerPerceptron(4, 5,1, dariusLearningRate, tanh);
