@@ -36,15 +36,14 @@ public class MultiLayerPerceptron {
 
         randomise();
     }
-    
+
+    // TODO close writer in exercise methods
     public void exerciseIrvine(int epochs) throws IOException {
         System.out.println("Executing Irvine...");
         irvineErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
         train(data.trainingVectors, data.trainingVectorOutputs, epochs, irvineErrorReport);
-        System.out.print("Training set");
-        testOutputs(data.trainingVectors, data.trainingVectorOutputs);
-        System.out.print("Testing set");
-        testOutputs(data.testingVectors, data.testingVectorOutputs);
+        System.out.println("Training set" + testOutputs(data.trainingVectors, data.trainingVectorOutputs));
+        System.out.println("Testing set" + testOutputs(data.testingVectors, data.testingVectorOutputs));
     }
 
     public void executeSinFunction(int epochs) throws IOException {
@@ -150,10 +149,10 @@ public class MultiLayerPerceptron {
         writer.write(epochs + "," + totalError + "\n");
         writer.flush();
         System.out.println("Epoch #" + epochs + ", Current error: " + totalError);
-        writer.close();
+        //writer.close();
     }
 
-    public void testOutputs(double[][] inputs, double[][] outputs) { // Maybe move this to TrainingData to clean up the file
+    public String testOutputs(double[][] inputs, double[][] outputs) { // Maybe move this to TrainingData to clean up the file
         // TODO yeah I messed up this code is comparing the expected outputs with the expected outputs of course it's all correct
         int correctOutputs = 0;
         for(int i = 0; i < inputs.length; i++) {
@@ -177,23 +176,7 @@ public class MultiLayerPerceptron {
             }
             //System.out.println(Arrays.toString(inputs[i]) + ", " + Arrays.toString(outputs[i]) + ", " + correctOutputIndex);
         }
-
-
-        /*for(int i = 0; i < inputs.length; i++) { // Use this for not Irvine
-            forward(inputs[i]);
-            for(int j = 0; j < outputs[i].length; j++) { // Probably could use some work
-                double output = layers[layers.length - 1].getNeurons().get(j).getValue();
-                //System.out.println("Actual output: " + output + ", Expected output: " + outputs[i][j]);
-                if (Math.abs(output - outputs[i][j]) > acceptableError) {
-                    correct = false;
-                    break;
-                }
-            }
-            if(correct) {
-                correctOutputs++;
-            }
-        }*/
-        System.out.println(" correct outputs: " + correctOutputs + "/" + outputs.length);
+        return " correct outputs: " + correctOutputs + "/" + outputs.length;
     }
 
     @Override
