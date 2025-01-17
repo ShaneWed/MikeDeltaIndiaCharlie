@@ -22,7 +22,11 @@ public class Main {
 
         System.out.println("Multi layer perceptron created!");
 
-        TestModels testing = new TestModels();
+        int testingEpochs = 1000;
+        double testingLearningRate = 0.01;
+
+        TestModels testing = new TestModels(16, 15, 26, testingEpochs, testingLearningRate, sigmoid);
+
         testing.runTrainings(3);
     }
 }

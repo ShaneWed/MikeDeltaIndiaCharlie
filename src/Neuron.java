@@ -30,9 +30,6 @@ public class Neuron {
     public double getValue() {
         return value;
     }
-    public int getRoundedValue() {
-        return (int)Math.round(value);
-    }
     public double getBias() {
         return bias;
     }
