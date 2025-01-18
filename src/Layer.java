@@ -12,9 +12,6 @@ public class Layer {
         for(int i = 0; i < noOfNeurons; i++) { // Generate neurons, crazy stuff
             Neuron neuron = new Neuron(noOfPreviousWeights);
             neurons.add(neuron);
-
-            // For debugging
-            //System.out.println("Neuron " + i + " added to layer " + layerNumber + " with weights " + Arrays.toString(previousWeights));
         }
     }
 

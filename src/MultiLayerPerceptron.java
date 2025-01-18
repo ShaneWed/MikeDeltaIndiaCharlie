@@ -5,11 +5,12 @@ import java.util.Random;
 public class MultiLayerPerceptron {
     int numOfInputs;
     int numOfOutputs;
-    int hiddenUnitsPerLayer; // These num of x are probably redundant, only used in the constructor
+    int hiddenUnitsPerLayer;
     double learningRate;
     TrainingData data;
     ActivationFunction activationFunction;
     Layer[] layers;
+    int numOfLayers;
 
     FileWriter sinErrorReport = new FileWriter("SinErrorReport");
     FileWriter xorErrorReport = new FileWriter("XorErrorReport");
@@ -18,6 +19,8 @@ public class MultiLayerPerceptron {
     // This will have an input layer, one hidden layer, and an output layer
     // Try to implement variable hidden layers eventually
     public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate, ActivationFunction function) throws IOException {
+        numOfLayers = 3;
+
         this.activationFunction = function;
         this.numOfInputs = numOfInputs;
         this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
@@ -27,16 +30,23 @@ public class MultiLayerPerceptron {
         this.data = new TrainingData();
         //this.data = new TrainingData(4, 1, 500);
 
-        // Should move this to a fancy little layer factory
-        Layer lowerLayer = new Layer(0, numOfInputs, numOfInputs); // input
-        Layer upperLayer = new Layer(1, hiddenUnitsPerLayer, numOfInputs); // hidden
-        Layer outputLayer = new Layer(2, numOfOutputs, hiddenUnitsPerLayer); // output
-        layers = new Layer[] {lowerLayer, upperLayer, outputLayer};
+        layers = layerFactory();
 
         randomise();
     }
 
-    // TODO close writer in exercise methods
+    private Layer[] layerFactory() {
+        Layer[] newLayers = new Layer[numOfLayers];
+        newLayers[0] = new Layer(0, numOfInputs, numOfInputs); // input
+        newLayers[1] = new Layer(1, hiddenUnitsPerLayer, numOfInputs); // hidden
+        for(int i = 3; i < numOfLayers; i++) {
+            newLayers[i] = new Layer(i, hiddenUnitsPerLayer, hiddenUnitsPerLayer);
+        }
+        newLayers[numOfLayers - 1] = new Layer(numOfLayers - 1, numOfOutputs, hiddenUnitsPerLayer); // output
+        return newLayers;
+    }
+
+
     public void exerciseIrvine(int epochs) throws IOException {
         System.out.println("Executing Irvine...");
         irvineErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");

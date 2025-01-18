@@ -27,6 +27,6 @@ public class Main {
 
         TestModels testing = new TestModels(16, 15, 26, testingEpochs, testingLearningRate, sigmoid);
 
-        testing.runTrainings(3);
+        testing.runTrainings(1);
     }
 }
