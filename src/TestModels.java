@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+// This class is not intended to test that the code works, but instead to test the results of training multiple models.
 public class TestModels {
     private final int numOfInputs;
     private final int hiddenUnitsPerLayer;
@@ -25,16 +26,24 @@ public class TestModels {
 
     public void runTrainings(int rounds) throws IOException {
         for(int i = 0; i < rounds; i++) {
-            File outputFile = new File(outputFileName + (i + 1) + ".txt");
-            FileWriter irvineTestingReport = new FileWriter(outputFile);
-            MultiLayerPerceptron perceptron = new MultiLayerPerceptron(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, learningRate, function);
-            irvineTestingReport.write("Testing report #" + (i + 1) + "\nInputs: " + numOfInputs + ", Hidden Units: " + hiddenUnitsPerLayer + ", Outputs: " + numOfOutputs + "\nLearning Rate: " + learningRate + ", Epochs: " + epochs + "\n\n");
-            perceptron.train(data.trainingVectors, data.trainingVectorOutputs, epochs, irvineTestingReport);
-            System.out.println("Training set" + perceptron.testOutputs(data.trainingVectors, data.trainingVectorOutputs));
-            System.out.println("Testing set" + perceptron.testOutputs(data.testingVectors, data.testingVectorOutputs));
-            irvineTestingReport.write("\nTraining set" + perceptron.testOutputs(data.trainingVectors, data.trainingVectorOutputs) + "\n" + "Testing set" + perceptron.testOutputs(data.testingVectors, data.testingVectorOutputs));
-            irvineTestingReport.flush();
-            irvineTestingReport.close();
+            training(i + 1);
         }
+    }
+
+    public void runTrainingsByID(int id) throws IOException {
+        training(id);
+    }
+
+    private void training(int id) throws IOException {
+        File outputFile = new File(outputFileName + id + ".txt");
+        FileWriter irvineTestingReport = new FileWriter(outputFile);
+        MultiLayerPerceptron perceptron = new MultiLayerPerceptron(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, learningRate, function);
+        irvineTestingReport.write("Testing report #" + id + "\nInputs: " + numOfInputs + ", Hidden Units: " + hiddenUnitsPerLayer + ", Outputs: " + numOfOutputs + "\nLearning Rate: " + learningRate + ", Epochs: " + epochs + "\n\n");
+        perceptron.train(data.irvineTrainingInput, data.irvineTrainingOutput, epochs, irvineTestingReport);
+        System.out.println("Training set" + perceptron.testOutputs(data.irvineTrainingInput, data.irvineTrainingOutput));
+        System.out.println("Testing set" + perceptron.testOutputs(data.irvineTestingInput, data.irvineTestingOutput));
+        irvineTestingReport.write("\nTraining set" + perceptron.testOutputs(data.irvineTrainingInput, data.irvineTrainingOutput) + "\n" + "Testing set" + perceptron.testOutputs(data.irvineTestingInput, data.irvineTestingOutput) + "\n");
+        irvineTestingReport.flush();
+        irvineTestingReport.close();
     }
 }

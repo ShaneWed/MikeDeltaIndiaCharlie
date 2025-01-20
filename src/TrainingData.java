@@ -16,6 +16,12 @@ public class TrainingData {
     double[][] testingVectors;
     double[][] testingVectorOutputs;
 
+    // Irvine data
+    double[][] irvineTrainingInput;
+    double[][] irvineTrainingOutput;
+    double[][] irvineTestingInput;
+    double[][] irvineTestingOutput;
+
     // These generate functions are both currently hard coded to the sin function and one output
     public void generateTrainingVectors(int noOfInputs, int noOfOutputs, int noOfVectors) {
         trainingVectors = new double[noOfVectors][noOfInputs];
@@ -47,10 +53,10 @@ public class TrainingData {
     }
 
     private void readIrvineLetters() throws IOException {
-        trainingVectors = new double[16000][16];
-        trainingVectorOutputs = new double[16000][26];
-        testingVectors = new double[4000][16];
-        testingVectorOutputs = new double[4000][26];
+        irvineTrainingInput = new double[16000][16];
+        irvineTrainingOutput = new double[16000][26];
+        irvineTestingInput = new double[4000][16];
+        irvineTestingOutput = new double[4000][26];
         String file = "IrvineLetters.txt"; // 1st character is expected output, then comma separated sixteen inputs
         int index;
         try(FileReader fileReader = new FileReader(file)) {
@@ -60,12 +66,11 @@ public class TrainingData {
             for(int i = 0; i < 16000; i++) { // Char as double?? In Java?? I don't think this is legal or functional
                 index = convertCharToInt(line[0].charAt(0));
                 for(int j = 0; j < 26; j++) {
-                    trainingVectorOutputs[i][j] = 0;
+                    irvineTrainingOutput[i][j] = 0;
                 }
-                trainingVectorOutputs[i][index - 1] = 1;
-                //System.out.println(Arrays.toString(trainingVectorOutputs[i]));
+                irvineTrainingOutput[i][index - 1] = 1;
                 for(int j = 1; j < line.length; j++) {
-                    trainingVectors[i][j - 1] = Double.parseDouble(line[j]); // Fence post possibly
+                    irvineTrainingInput[i][j - 1] = Double.parseDouble(line[j]); // Fence post possibly
                 }
 
                 line = bufferedReader.readLine().split(",");
@@ -73,11 +78,11 @@ public class TrainingData {
             for(int i = 0; i < 3999; i++) {
                 index = convertCharToInt(line[0].charAt(0));
                 for(int j = 0; j < 26; j++) {
-                    testingVectorOutputs[i][j] = 0;
+                    irvineTestingOutput[i][j] = 0;
                 }
-                testingVectorOutputs[i][index - 1] = 1;
+                irvineTestingOutput[i][index - 1] = 1;
                 for(int j = 1; j < line.length; j++) {
-                    testingVectors[i][j - 1] = Double.parseDouble(line[j]); // Fence post possibly
+                    irvineTestingInput[i][j - 1] = Double.parseDouble(line[j]); // Fence post possibly
                 }
 
                 line = bufferedReader.readLine().split(",");
@@ -86,6 +91,7 @@ public class TrainingData {
             System.out.println("Error reading " + file + ", fix this now!");
         }
     }
+
     private int convertCharToInt(char input) {
         return switch (input) {
             case 'A' -> 1;

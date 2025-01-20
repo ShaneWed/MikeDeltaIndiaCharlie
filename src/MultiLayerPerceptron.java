@@ -27,7 +27,7 @@ public class MultiLayerPerceptron {
         this.numOfOutputs = numOfOutputs;
         this.learningRate = learningRate;
         // TODO Currently have to manually change which data set is used, implement this better
-        this.data = new TrainingData();
+        this.data = new TrainingData(); // TODO this is likely causing issues
         //this.data = new TrainingData(4, 1, 500);
 
         layers = layerFactory();
@@ -50,9 +50,9 @@ public class MultiLayerPerceptron {
     public void exerciseIrvine(int epochs) throws IOException {
         System.out.println("Executing Irvine...");
         irvineErrorReport.write("Epochs: " + epochs + ", Learning Rate: " + learningRate + "\n");
-        train(data.trainingVectors, data.trainingVectorOutputs, epochs, irvineErrorReport);
-        System.out.println("Training set" + testOutputs(data.trainingVectors, data.trainingVectorOutputs));
-        System.out.println("Testing set" + testOutputs(data.testingVectors, data.testingVectorOutputs));
+        train(data.irvineTrainingInput, data.irvineTrainingOutput, epochs, irvineErrorReport);
+        System.out.println("Training set" + testOutputs(data.irvineTrainingInput, data.irvineTrainingOutput));
+        System.out.println("Testing set" + testOutputs(data.irvineTestingInput, data.irvineTestingOutput));
     }
 
     public void executeSinFunction(int epochs) throws IOException {

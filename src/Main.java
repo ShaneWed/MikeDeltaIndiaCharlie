@@ -10,7 +10,7 @@ public class Main {
         double dariusLearningRate = 0.05;
         int dariusEpochs = 10000;
         double irvineLearningRate = 0.2;
-        int irvineEpochs = 1000; // 10007, 2438; 9465, 2275; 9903, 2395; 10008, 2477
+        int irvineEpochs = 1000;
 
         MultiLayerPerceptron Mike = new MultiLayerPerceptron(2, 5, 1, mikeLearningRate, tanh);
         MultiLayerPerceptron Darius = new MultiLayerPerceptron(4, 5,1, dariusLearningRate, tanh);
@@ -25,8 +25,12 @@ public class Main {
         int testingEpochs = 1000;
         double testingLearningRate = 0.01;
 
-        TestModels testing = new TestModels(16, 15, 26, testingEpochs, testingLearningRate, sigmoid);
+        //TestModels testing = new TestModels(16, 15, 26, testingEpochs, testingLearningRate, sigmoid);
+        //testing.runTrainings(1);
 
-        testing.runTrainings(1);
+        for(int i = 0; i < 3; i++) {
+            Thread multiThreadedTestModels = new Thread(new MultithreadedTestModels(16, 15, 26, testingEpochs, testingLearningRate, sigmoid));
+            multiThreadedTestModels.start();
+        }
     }
 }
