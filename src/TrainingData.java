@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Random;
 
 public class TrainingData {
@@ -52,44 +51,39 @@ public class TrainingData {
         }
     }
 
-    private void readIrvineLetters() throws IOException {
+    private void readIrvineLetters() {
         irvineTrainingInput = new double[16000][16];
         irvineTrainingOutput = new double[16000][26];
         irvineTestingInput = new double[4000][16];
         irvineTestingOutput = new double[4000][26];
         String file = "IrvineLetters.txt"; // 1st character is expected output, then comma separated sixteen inputs
-        int index;
         try(FileReader fileReader = new FileReader(file)) {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String[] line = bufferedReader.readLine().split(",");
-
             for(int i = 0; i < 16000; i++) { // Char as double?? In Java?? I don't think this is legal or functional
-                index = convertCharToInt(line[0].charAt(0));
-                for(int j = 0; j < 26; j++) {
-                    irvineTrainingOutput[i][j] = 0;
-                }
-                irvineTrainingOutput[i][index - 1] = 1;
-                for(int j = 1; j < line.length; j++) {
-                    irvineTrainingInput[i][j - 1] = Double.parseDouble(line[j]); // Fence post possibly
-                }
-
-                line = bufferedReader.readLine().split(",");
+                line = extractIntsFromFileString(bufferedReader, line, i, irvineTrainingOutput, irvineTrainingInput);
             }
             for(int i = 0; i < 3999; i++) {
-                index = convertCharToInt(line[0].charAt(0));
-                for(int j = 0; j < 26; j++) {
-                    irvineTestingOutput[i][j] = 0;
-                }
-                irvineTestingOutput[i][index - 1] = 1;
-                for(int j = 1; j < line.length; j++) {
-                    irvineTestingInput[i][j - 1] = Double.parseDouble(line[j]); // Fence post possibly
-                }
-
-                line = bufferedReader.readLine().split(",");
+                line = extractIntsFromFileString(bufferedReader, line, i, irvineTestingOutput, irvineTestingInput);
             }
         } catch (IOException e) {
             System.out.println("Error reading " + file + ", fix this now!");
         }
+    }
+
+    private String[] extractIntsFromFileString(BufferedReader bufferedReader, String[] line, int i, double[][] irvineTestingOutput, double[][] irvineTestingInput) throws IOException {
+        int index;
+        index = convertCharToInt(line[0].charAt(0));
+        for(int j = 0; j < 26; j++) {
+            irvineTestingOutput[i][j] = 0;
+        }
+        irvineTestingOutput[i][index - 1] = 1;
+        for(int j = 1; j < line.length; j++) {
+            irvineTestingInput[i][j - 1] = Double.parseDouble(line[j]);
+        }
+
+        line = bufferedReader.readLine().split(",");
+        return line;
     }
 
     private int convertCharToInt(char input) {
@@ -129,7 +123,7 @@ public class TrainingData {
         generateTestingVectors(noOfInputs, noOfOutputs, 100);
     }
 
-    public TrainingData() throws IOException {
+    public TrainingData() {
         readIrvineLetters();
     }
 }

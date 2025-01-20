@@ -9,7 +9,8 @@ public class MultithreadedTestModels extends TestModels implements Runnable {
     @Override
     public void run() {
         try {
-            runTrainingsByID((int) Thread.currentThread().threadId());
+            // Sketchy but allows TestModels training to have less duplicate code
+            runTrainingsByID(Integer.parseInt(Thread.currentThread().getName()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

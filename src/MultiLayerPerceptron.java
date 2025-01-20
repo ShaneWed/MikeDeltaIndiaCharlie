@@ -18,8 +18,8 @@ public class MultiLayerPerceptron {
 
     // This will have an input layer, one hidden layer, and an output layer
     // Try to implement variable hidden layers eventually
-    public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate, ActivationFunction function) throws IOException {
-        numOfLayers = 3;
+    public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate, ActivationFunction function, TrainingData data) throws IOException {
+        numOfLayers = 3; // Can't actually change this value yet without breaking everything
 
         this.activationFunction = function;
         this.numOfInputs = numOfInputs;
@@ -27,7 +27,7 @@ public class MultiLayerPerceptron {
         this.numOfOutputs = numOfOutputs;
         this.learningRate = learningRate;
         // TODO Currently have to manually change which data set is used, implement this better
-        this.data = new TrainingData(); // TODO this is likely causing issues
+        this.data = data;
         //this.data = new TrainingData(4, 1, 500);
 
         layers = layerFactory();

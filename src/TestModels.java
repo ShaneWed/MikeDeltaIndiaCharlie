@@ -13,7 +13,7 @@ public class TestModels {
     private final String outputFileName;
     private final int epochs;
 
-    public TestModels(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, int epochs, double learningRate, ActivationFunction function)  throws IOException {
+    public TestModels(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, int epochs, double learningRate, ActivationFunction function) {
         this.numOfInputs = numOfInputs;
         this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
         this.numOfOutputs = numOfOutputs;
@@ -24,12 +24,6 @@ public class TestModels {
         //irvineTestingReport = new FileWriter(outputFile);
     }
 
-    public void runTrainings(int rounds) throws IOException {
-        for(int i = 0; i < rounds; i++) {
-            training(i + 1);
-        }
-    }
-
     public void runTrainingsByID(int id) throws IOException {
         training(id);
     }
@@ -37,7 +31,7 @@ public class TestModels {
     private void training(int id) throws IOException {
         File outputFile = new File(outputFileName + id + ".txt");
         FileWriter irvineTestingReport = new FileWriter(outputFile);
-        MultiLayerPerceptron perceptron = new MultiLayerPerceptron(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, learningRate, function);
+        MultiLayerPerceptron perceptron = new MultiLayerPerceptron(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, learningRate, function, data);
         irvineTestingReport.write("Testing report #" + id + "\nInputs: " + numOfInputs + ", Hidden Units: " + hiddenUnitsPerLayer + ", Outputs: " + numOfOutputs + "\nLearning Rate: " + learningRate + ", Epochs: " + epochs + "\n\n");
         perceptron.train(data.irvineTrainingInput, data.irvineTrainingOutput, epochs, irvineTestingReport);
         System.out.println("Training set" + perceptron.testOutputs(data.irvineTrainingInput, data.irvineTrainingOutput));
