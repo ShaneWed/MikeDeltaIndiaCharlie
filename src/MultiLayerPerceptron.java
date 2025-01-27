@@ -16,19 +16,14 @@ public class MultiLayerPerceptron {
     FileWriter xorErrorReport = new FileWriter("XorErrorReport");
     FileWriter irvineErrorReport = new FileWriter("IrvineErrorReport");
 
-    // This will have an input layer, one hidden layer, and an output layer
-    // Try to implement variable hidden layers eventually
-    public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate, ActivationFunction function, TrainingData data) throws IOException {
-        numOfLayers = 3; // Can't actually change this value yet without breaking everything
-
+    public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate, ActivationFunction function, TrainingData data, int numOfLayers) throws IOException {
+        this.numOfLayers = numOfLayers;
         this.activationFunction = function;
         this.numOfInputs = numOfInputs;
         this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
         this.numOfOutputs = numOfOutputs;
         this.learningRate = learningRate;
-        // TODO Currently have to manually change which data set is used, implement this better
         this.data = data;
-        //this.data = new TrainingData(4, 1, 500);
 
         layers = layerFactory();
 
@@ -39,13 +34,12 @@ public class MultiLayerPerceptron {
         Layer[] newLayers = new Layer[numOfLayers];
         newLayers[0] = new Layer(0, numOfInputs, numOfInputs); // input
         newLayers[1] = new Layer(1, hiddenUnitsPerLayer, numOfInputs); // hidden
-        for(int i = 3; i < numOfLayers; i++) {
+        for(int i = 2; i < numOfLayers; i++) {
             newLayers[i] = new Layer(i, hiddenUnitsPerLayer, hiddenUnitsPerLayer);
         }
         newLayers[numOfLayers - 1] = new Layer(numOfLayers - 1, numOfOutputs, hiddenUnitsPerLayer); // output
         return newLayers;
     }
-
 
     public void exerciseIrvine(int epochs) throws IOException {
         System.out.println("Executing Irvine...");
@@ -74,7 +68,6 @@ public class MultiLayerPerceptron {
     }
 
     public void randomise() {
-        // Maybe make it so input doesn't get set weights? Or we can just ignore them during the other functions
         Random rand = new Random();
         for(Layer l : layers) {
             if(l.layerNumber() != 0) {
@@ -141,7 +134,7 @@ public class MultiLayerPerceptron {
         double totalError = 0;
         for(int i = 0; i < epochs; i++) {
             totalError = 0;
-            for(int j = 0; j < input.length; j++) { // Logic here is incorrect
+            for(int j = 0; j < input.length; j++) {
                 forward(input[j]);
                 // Following line needs to pass an array of expected output for each neuron in output layer
                 // Should be doing this ^ now, is still a potential source of bugs I haven't checked it out much
@@ -162,7 +155,6 @@ public class MultiLayerPerceptron {
     }
 
     public String testOutputs(double[][] inputs, double[][] outputs) { // Maybe move this to TrainingData to clean up the file
-        // TODO yeah I messed up this code is comparing the expected outputs with the expected outputs of course it's all correct
         int correctOutputs = 0;
         for(int i = 0; i < inputs.length; i++) {
             forward(inputs[i]);
@@ -183,7 +175,6 @@ public class MultiLayerPerceptron {
             if(maxOutputIndex == correctOutputIndex) {
                 correctOutputs++;
             }
-            //System.out.println(Arrays.toString(inputs[i]) + ", " + Arrays.toString(outputs[i]) + ", " + correctOutputIndex);
         }
         return " correct outputs: " + correctOutputs + "/" + outputs.length;
     }

@@ -2,8 +2,8 @@ import java.io.IOException;
 
 public class MultithreadedTestModels extends TestModels implements Runnable {
 
-    public MultithreadedTestModels(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, int epochs, double learningRate, ActivationFunction function) throws IOException {
-        super(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, epochs, learningRate, function);
+    public MultithreadedTestModels(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, int epochs, double learningRate, ActivationFunction function, int numOfLayers) {
+        super(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, epochs, learningRate, function, numOfLayers);
     }
 
     @Override
@@ -14,9 +14,5 @@ public class MultithreadedTestModels extends TestModels implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void start() {
-        run();
     }
 }
