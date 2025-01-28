@@ -60,7 +60,7 @@ public class TrainingData {
         try(FileReader fileReader = new FileReader(file)) {
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             String[] line = bufferedReader.readLine().split(",");
-            for(int i = 0; i < 16000; i++) { // Char as double?? In Java?? I don't think this is legal or functional
+            for(int i = 0; i < 16000; i++) { // Char as double?? In Java?? I don't think this is legal or functional; It is in fact functional
                 line = extractIntsFromFileString(bufferedReader, line, i, irvineTrainingOutput, irvineTrainingInput);
             }
             for(int i = 0; i < 3999; i++) {
@@ -119,6 +119,7 @@ public class TrainingData {
     }
 
     public TrainingData(int noOfInputs, int noOfOutputs, int noOfVectors) {
+
         generateTrainingVectors(noOfInputs, noOfOutputs, noOfVectors - 100);
         generateTestingVectors(noOfInputs, noOfOutputs, 100);
     }

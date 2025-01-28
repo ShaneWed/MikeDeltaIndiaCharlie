@@ -25,7 +25,7 @@ public class TestModels {
         this.numOfLayers = numOfLayers;
         // Will cause issues when switching computers
         //outputFileName = "C://Users//shane//IdeaProjects//MikeDeltaIndiaCharlie//testingOutputs//irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-#";
-        outputFileName = "/home/shane/IdeaProjects/MikeDeltaIndiaCharlie/testingOutputs/irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-#";
+        outputFileName = "/home/shane/IdeaProjects/MikeDeltaIndiaCharlie/testingOutputs/irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-" + numOfLayers + "-#";
     }
 
     public void runTrainingsByID(int id) throws IOException {
@@ -33,14 +33,16 @@ public class TestModels {
     }
 
     private void training(int id) throws IOException {
+        long startTime = System.currentTimeMillis();
         File outputFile = new File(outputFileName + id + ".txt");
         FileWriter irvineTestingReport = new FileWriter(outputFile);
         MultiLayerPerceptron perceptron = new MultiLayerPerceptron(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, learningRate, function, data, numOfLayers);
-        irvineTestingReport.write("Testing report #" + id + "\nInputs: " + numOfInputs + ", Hidden Units: " + hiddenUnitsPerLayer + ", Outputs: " + numOfOutputs + "\nLearning Rate: " + learningRate + ", Epochs: " + epochs + "\nActivation Function: " + function + "\n\n");
+        irvineTestingReport.write("Testing report #" + id + "\nInputs: " + numOfInputs + ", Hidden Units: " + hiddenUnitsPerLayer + ", Outputs: " + numOfOutputs + "\nLearning Rate: " + learningRate + ", Epochs: " + epochs + "\nActivation Function: " + function + ", Layers: " + numOfLayers + "\n\n");
         perceptron.train(data.irvineTrainingInput, data.irvineTrainingOutput, epochs, irvineTestingReport);
         System.out.println("Training set" + perceptron.testOutputs(data.irvineTrainingInput, data.irvineTrainingOutput));
         System.out.println("Testing set" + perceptron.testOutputs(data.irvineTestingInput, data.irvineTestingOutput));
         irvineTestingReport.write("\nTraining set" + perceptron.testOutputs(data.irvineTrainingInput, data.irvineTrainingOutput) + "\n" + "Testing set" + perceptron.testOutputs(data.irvineTestingInput, data.irvineTestingOutput) + "\n");
+        irvineTestingReport.write("Time taken: " + (System.currentTimeMillis() - startTime) / 1000 + " seconds\n");
         irvineTestingReport.flush();
         irvineTestingReport.close();
     }

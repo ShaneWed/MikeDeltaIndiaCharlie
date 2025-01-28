@@ -17,7 +17,7 @@ public class MultiLayerPerceptron {
     FileWriter irvineErrorReport = new FileWriter("IrvineErrorReport");
 
     public MultiLayerPerceptron(int numOfInputs, int hiddenUnitsPerLayer, int numOfOutputs, double learningRate, ActivationFunction function, TrainingData data, int numOfLayers) throws IOException {
-        this.numOfLayers = numOfLayers;
+        this.numOfLayers = Math.max(numOfLayers, 3);
         this.activationFunction = function;
         this.numOfInputs = numOfInputs;
         this.hiddenUnitsPerLayer = hiddenUnitsPerLayer;
