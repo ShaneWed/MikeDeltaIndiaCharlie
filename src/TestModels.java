@@ -3,6 +3,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 // This class is not intended to test that the code works, but instead to test the results of training multiple models.
+// Only implemented for the irvine problem, won't do it for xor or sin because they are simple.
 public class TestModels {
     private final int numOfInputs;
     private final int hiddenUnitsPerLayer;
@@ -23,8 +24,8 @@ public class TestModels {
         this.function = function;
         this.numOfLayers = numOfLayers;
         // Will cause issues when switching computers
-        outputFileName = "C://Users//shane//IdeaProjects//MikeDeltaIndiaCharlie//testingOutputs//irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-#";
-        //irvineTestingReport = new FileWriter(outputFile);
+        //outputFileName = "C://Users//shane//IdeaProjects//MikeDeltaIndiaCharlie//testingOutputs//irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-#";
+        outputFileName = "/home/shane/IdeaProjects/MikeDeltaIndiaCharlie/testingOutputs/irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-#";
     }
 
     public void runTrainingsByID(int id) throws IOException {
@@ -35,7 +36,7 @@ public class TestModels {
         File outputFile = new File(outputFileName + id + ".txt");
         FileWriter irvineTestingReport = new FileWriter(outputFile);
         MultiLayerPerceptron perceptron = new MultiLayerPerceptron(numOfInputs, hiddenUnitsPerLayer, numOfOutputs, learningRate, function, data, numOfLayers);
-        irvineTestingReport.write("Testing report #" + id + "\nInputs: " + numOfInputs + ", Hidden Units: " + hiddenUnitsPerLayer + ", Outputs: " + numOfOutputs + "\nLearning Rate: " + learningRate + ", Epochs: " + epochs + "\n\n");
+        irvineTestingReport.write("Testing report #" + id + "\nInputs: " + numOfInputs + ", Hidden Units: " + hiddenUnitsPerLayer + ", Outputs: " + numOfOutputs + "\nLearning Rate: " + learningRate + ", Epochs: " + epochs + "\nActivation Function: " + function + "\n\n");
         perceptron.train(data.irvineTrainingInput, data.irvineTrainingOutput, epochs, irvineTestingReport);
         System.out.println("Training set" + perceptron.testOutputs(data.irvineTrainingInput, data.irvineTrainingOutput));
         System.out.println("Testing set" + perceptron.testOutputs(data.irvineTestingInput, data.irvineTestingOutput));

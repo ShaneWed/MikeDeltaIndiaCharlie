@@ -8,4 +8,8 @@ public class Sigmoid extends ActivationFunction{
     public double calculateDerivative(double z) {
         return calculate(z) * (1 - calculate(z));
     }
+
+    public String toString() {
+        return "Sigmoid";
+    }
 }

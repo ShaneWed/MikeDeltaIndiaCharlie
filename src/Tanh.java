@@ -8,4 +8,8 @@ public class Tanh extends ActivationFunction {
     public double calculateDerivative(double z) {
         return (1 - Math.pow(calculate(z), 2));
     }
+
+    public String toString() {
+        return "Tanh";
+    }
 }
