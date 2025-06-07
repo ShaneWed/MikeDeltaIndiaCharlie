@@ -23,7 +23,7 @@ public class TestModels {
         this.learningRate = learningRate;
         this.function = function;
         this.numOfLayers = numOfLayers;
-        // Will cause issues when switching computers
+        // Will cause issues if switching computers
         //outputFileName = "C://Users//shane//IdeaProjects//MikeDeltaIndiaCharlie//testingOutputs//irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-#";
         outputFileName = "/home/shane/IdeaProjects/MikeDeltaIndiaCharlie/testingOutputs/irvineTestingReport" + numOfInputs + "-" + hiddenUnitsPerLayer + "-" + numOfOutputs + "-" + learningRate * 100 + "-" + epochs + "-" + numOfLayers + "-#";
     }
